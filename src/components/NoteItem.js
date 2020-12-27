@@ -29,7 +29,8 @@ export default function NoteItem({id, date, title, content, navigation}) {
   }
 
   const del = () => {
-    dispatch({type: type.DELETE_NOTE, payload: id });
+    //dispatch({type: type.DELETE_NOTE, payload: id });
+    dispatch({type: type.DELETE_TEXT_NOTE, payload: id });
   }
 
   const editNote = () => {

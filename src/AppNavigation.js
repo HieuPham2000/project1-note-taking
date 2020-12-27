@@ -44,20 +44,32 @@ function CustomDrawerContent(props) {
 
 const Drawer = createDrawerNavigator();
 export default function Navigator() {
-  const dispatch = useDispatch();
+  /* const dispatch = useDispatch();
   React.useEffect(() => {
+    // notes
+    var noteItem = [];
+    db.ref('/notes').once('value', querySnapShot => {
+      var noteData = querySnapShot.val() ? querySnapShot.val() : {};
+      for(var key in noteData) {
+        noteItem.unshift({...noteData[key]});
+      }
+      setTimeout(() => {
+        dispatch({ type: type.INIT_NOTES, payload: noteItem });
+    }, 2000);
+    })
+    // todos
     var todoItem = [];
-      db.ref('/todos').once('value', querySnapShot => {
-        var data = querySnapShot.val() ? querySnapShot.val() : {};
-        for(var key in data) {
-          todoItem.push({...data[key]});
-        }
-        setTimeout(() => {
-          dispatch({ type: type.INIT_TODOS, payload: todoItem });
-      }, 2000);
-      })
+    db.ref('/todos').once('value', querySnapShot => {
+      var todoData = querySnapShot.val() ? querySnapShot.val() : {};
+      for(var key in todoData) {
+        todoItem.push({...todoData[key]});
+      }
+      setTimeout(() => {
+        dispatch({ type: type.INIT_TODOS, payload: todoItem });
+    }, 2000);
+    })
     //dispatch({ type: type.INIT_TODOS });
-  }, [])
+  }, []) */
 
   return (
     <NavigationContainer>

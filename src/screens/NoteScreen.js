@@ -23,29 +23,12 @@ export default function NoteScreen({navigation, route}) {
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const [idTimeout, setIdTimeout] = useState(null);
-  const [oldTitle, setOldTitle] = useState(title);
-  const [oldContent, setOldContent] = useState(content);
+  const [old, setOld] = useState(title);
 
   const dispatch = useDispatch();
 
   const titleRef = useRef();
-  
-
-  /* componentDidMount() {
-    this.setState({
-      id: this.props.route.params?.id ?? '', // tại sao trên web thì id: this.props.route.params.id không lỗi
-      title: this.props.route.params?.title ?? '',
-      content: this.props.route.params?.content ?? '',
-    })
-  } */
-  // Test
-  /* useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', goBack);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', goBack);
-    };
-  }, []); */
-
+  const contentRef = useRef();
 
   useEffect(() => {
     navigation.setOptions({
@@ -78,33 +61,54 @@ export default function NoteScreen({navigation, route}) {
     setRedoStack([]);
 
     clearTimeout(idTimeout);
-    const tmp = setTimeout(() => {setUndoStack([oldTitle, ...undoStack]), setOldTitle(text)}, 500) ;
+    const tmp = setTimeout(
+      () => {
+        setUndoStack([old, ...undoStack])
+        setOld({title: text, content: content})
+      }, 500) ;
     setIdTimeout(tmp);
 
     setTitle(text);
   }
 
   const handleChangeContent = (text) =>  {
+    setRedoStack([]);
+
+    clearTimeout(idTimeout);
+    const tmp = setTimeout(
+      () => {
+        setUndoStack([old, ...undoStack])
+        setOld({title: title, content: text})
+      }, 500) ;
+    setIdTimeout(tmp);
+
     setContent(text);
   }
 
   const handleUndo = () => {
-    // vì khi ấn undo thì tham số text ở handleTitleChange vẫn lưu giá trị cũ??
-    // nên lỗi xảy ra khi đã undo, redo giữa chừng mà nhập text mới => sai
-    titleRef.current.clear()
     //setTitle('Press undo');
     if(undoStack.length >= 1) {
       const newHistory = [...undoStack];
       const value = newHistory.shift();
       setUndoStack([...newHistory]);
       if(redoStack.length == 0) {
-        setRedoStack([value, title, ...redoStack]);
+        // vì khi ấn undo thì tham số text ở handleTitleChange vẫn lưu giá trị cũ??
+        // nên lỗi xảy ra khi đã undo, redo giữa chừng mà nhập text mới => sai
+        /* titleRef.current.clear()
+        contentRef.current.clear() */
+        setRedoStack([value, {title: title, content: content}, ...redoStack]);
       } else {
         setRedoStack([value, ...redoStack]);
       }
-      setTitle(value);
+      if(value.title != title) {
+        titleRef.current.clear()
+        setTitle(value.title);
+      } else {
+        contentRef.current.clear()
+        setContent(value.content);
+      }
       // phải set Old Title vì...
-      setOldTitle(value);
+      setOld(value);
     }
   }
 
@@ -114,14 +118,23 @@ export default function NoteScreen({navigation, route}) {
       const value = newHistory.shift();
       setRedoStack([...newHistory]);
       setUndoStack([value, ...undoStack]);
-      setTitle(redoStack[1]);
-      setOldTitle(redoStack[1]);
+
+      if(redoStack[1].title != title) {
+        titleRef.current.clear()
+        setTitle(redoStack[1].title);
+      } else {
+        contentRef.current.clear()
+        setContent(redoStack[1].content);
+      }
+      
+      setOld(redoStack[1]);
     }
     
   }
 
   const printUndoStack = () => {
     console.log(undoStack);
+    //titleRef.current.clear()
   }
 
   const printRedoStack = () => {
@@ -129,13 +142,14 @@ export default function NoteScreen({navigation, route}) {
   }
 
   const saveNote = () => {
-    //let date = new Date();
-    dispatch({type: type.NEW_NOTE, payload: {title: title, content: content, /*date: date, id: date*/ } })
+    //dispatch({type: type.NEW_NOTE, payload: {title: title, content: content} })
+    dispatch({type: type.NEW_TEXT_NOTE, payload: {title: title, content: content} })
     navigation.navigate('HomeScreen');
   }
 
   const updateNote = () => {
-    dispatch({type: type.UPDATE_NOTE, payload: {id: id, title: title, content: content} })
+    //dispatch({type: type.UPDATE_NOTE, payload: {id: id, title: title, content: content} })
+    dispatch({type: type.UPDATE_TEXT_NOTE, payload: {id: id, title: title, content: content} })
     navigation.navigate('HomeScreen');
   }
 
@@ -219,6 +233,7 @@ export default function NoteScreen({navigation, route}) {
           <View style={styles.line} />
           <View style={styles.contentWrapper}>
             <TextInput
+              ref = {contentRef}
               style={styles.content}
               placeholder='Ghi chú'
               multiline={true}

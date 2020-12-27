@@ -1,5 +1,14 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Text, Button, Alert, LogBox, Keyboard } from 'react-native';
+import { 
+  View, 
+  StyleSheet, 
+  ScrollView, 
+  Dimensions, 
+  Text, 
+  ActivityIndicator, 
+  Alert, 
+  LogBox, 
+  Keyboard } from 'react-native';
 import EmptyTodo from '../components/EmptyTodo';
 import * as COLOR from '../theme/color';
 import { TextInput } from 'react-native-gesture-handler';
@@ -18,19 +27,28 @@ const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
 
 export default function TodoScreen(props) {
-  // giải pháp tình thế => update: đã fix
   LogBox.ignoreAllLogs()
   const todos = useSelector((state) => state.todo);
-  //const todos = useSelector((state) => state.todo, []);
   const [presentTodo, setPresentTodo] = useState('');
-  const [activeButton, setActive] = useState(false);
   const scrollViewRef = useRef();
 
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
-  /* useEffect(() => {
-      dispatch({ type: type.INIT_TODOS}); 
-  }, []) */
+  useEffect(() => {
+    // todos
+    var todoItem = [];
+    db.ref('/todos').once('value', querySnapShot => {
+      var todoData = querySnapShot.val() ? querySnapShot.val() : {};
+      for(var key in todoData) {
+        todoItem.push({...todoData[key]});
+      }
+      setTimeout(() => {
+        dispatch({ type: type.INIT_TODOS, payload: todoItem });
+        setLoading(false);
+    }, 500);
+    })
+  }, [])
 
   const addTodo = () => {
     dispatch({type: type.NEW_TODO, payload: {done: false, body: presentTodo}});
@@ -103,18 +121,23 @@ export default function TodoScreen(props) {
   }
   
 
-
-  /* useEffect(() => {
-    Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
-    // cleanup function
-    return () => {
-      Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-    };
-  }, []);
-
-  const _keyboardDidShow = () => {
-    setActive(false);
-  }; */
+  const isLoadingData = () => {
+    if (loading) {
+      return (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}>
+          <ActivityIndicator color="#fff" animating size="large" />
+        </View>
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>   
@@ -226,6 +249,8 @@ export default function TodoScreen(props) {
           //onFocus={setActive(false)}
         />
       </View>
+      {/* để dưới cùng*/}
+      {isLoadingData()}
     </View>
   );
 }

@@ -2,13 +2,6 @@ import { TODOS } from '../../utils/dataTodos';
 import * as type from '../actiontypes'
 import { db } from '../../config'
 
-
-export const setTodos = (todos) => ({
-  type: type.INIT_TODOS,
-  payload: todos
-})
-
-
 const todoReducer = (state = [], action) => {
   switch (action.type) {
     case type.INIT_TODOS:

@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView} from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import EmptyNote from '../components/EmptyNote'
 import * as COLOR from '../theme/color'
 import NoteItem from '../components/NoteItem'
-//Import ActionButton
 import ActionButton from 'react-native-action-button';
-//Import Icon for the ActionButton
-import Icon from 'react-native-vector-icons/Ionicons';
 import { LogBox } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import {db} from '../config';
+import * as type from '../redux/actiontypes'
 
 
 export default function HomeScreen(props) {
@@ -18,6 +18,42 @@ export default function HomeScreen(props) {
   LogBox.ignoreAllLogs()
 
   const notes = useSelector((state) => state.note);
+  const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(true);
+
+  const isLoadingData = () => {
+    if (loading) {
+      return (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}>
+          <ActivityIndicator color="#fff" animating size="large" />
+        </View>
+      );
+    }
+  };
+
+  React.useEffect(() => {
+    // notes
+    var noteItem = [];
+    db.ref('/notes').once('value', querySnapShot => {
+      var noteData = querySnapShot.val() ? querySnapShot.val() : {};
+      for(var key in noteData) {
+        noteItem.unshift({...noteData[key]});
+      }
+      setTimeout(() => {
+        dispatch({ type: type.INIT_NOTES, payload: noteItem });
+        setLoading(false);
+      }, 500);
+      })
+  }, [])
   
   return (
     <View style={styles.container}>  
@@ -28,8 +64,9 @@ export default function HomeScreen(props) {
         <View>
           {notes.map((i, k) => (
               <NoteItem
+                //key={k}
                 key={k}
-                id={k}
+                id={i.key}
                 date={i.date}
                 title={i.title}
                 content={i.content}
@@ -93,6 +130,8 @@ export default function HomeScreen(props) {
             />
           </ActionButton.Item>
         </ActionButton>
+        {/* để dưới dùng */}
+        {isLoadingData()}
     </View>
   );
 }
