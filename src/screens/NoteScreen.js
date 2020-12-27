@@ -1,11 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, ScrollView, Alert, BackHandler } from 'react-native';
-import { useNavigation } from 'react-navigation-hooks';
 import { useDispatch } from 'react-redux';
 import * as COLOR from '../theme/color'
 import * as type from  '../redux/actiontypes'
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Button } from 'react-native';
+
+//import DelayInput from 'react-native-debounce-input'
+
 
 export default function NoteScreen({navigation, route}) {
   const idNote = route.params===undefined? -1 : route.params.idNote;
@@ -17,7 +20,15 @@ export default function NoteScreen({navigation, route}) {
   const [title, setTitle] = useState(titleNote);
   const [content, setContent] = useState(contentNote);
 
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+  const [idTimeout, setIdTimeout] = useState(null);
+  const [oldTitle, setOldTitle] = useState(title);
+  const [oldContent, setOldContent] = useState(content);
+
   const dispatch = useDispatch();
+
+  const titleRef = useRef();
   
 
   /* componentDidMount() {
@@ -61,11 +72,60 @@ export default function NoteScreen({navigation, route}) {
     })})
 
   const handleChangeTitle = (text)  => {
+    //console.log("handelChangeTitle is called!")
+    //console.log(text)
+
+    setRedoStack([]);
+
+    clearTimeout(idTimeout);
+    const tmp = setTimeout(() => {setUndoStack([oldTitle, ...undoStack]), setOldTitle(text)}, 500) ;
+    setIdTimeout(tmp);
+
     setTitle(text);
   }
 
   const handleChangeContent = (text) =>  {
     setContent(text);
+  }
+
+  const handleUndo = () => {
+    // vì khi ấn undo thì tham số text ở handleTitleChange vẫn lưu giá trị cũ??
+    // nên lỗi xảy ra khi đã undo, redo giữa chừng mà nhập text mới => sai
+    titleRef.current.clear()
+    //setTitle('Press undo');
+    if(undoStack.length >= 1) {
+      const newHistory = [...undoStack];
+      const value = newHistory.shift();
+      setUndoStack([...newHistory]);
+      if(redoStack.length == 0) {
+        setRedoStack([value, title, ...redoStack]);
+      } else {
+        setRedoStack([value, ...redoStack]);
+      }
+      setTitle(value);
+      // phải set Old Title vì...
+      setOldTitle(value);
+    }
+  }
+
+  const handleRedo = () => {
+    if(redoStack.length >= 2) {
+      const newHistory = [...redoStack];
+      const value = newHistory.shift();
+      setRedoStack([...newHistory]);
+      setUndoStack([value, ...undoStack]);
+      setTitle(redoStack[1]);
+      setOldTitle(redoStack[1]);
+    }
+    
+  }
+
+  const printUndoStack = () => {
+    console.log(undoStack);
+  }
+
+  const printRedoStack = () => {
+    console.log(redoStack);
   }
 
   const saveNote = () => {
@@ -143,6 +203,9 @@ export default function NoteScreen({navigation, route}) {
         <ScrollView style={styles.wrapper}>
           <View style={styles.titleWrapper}>
             <TextInput
+              //delayTimeout={500}
+              //inputRef={titleRef}
+              ref = {titleRef}
               style={styles.title}
               placeholder='Tiêu đề'
               multiline={true}
@@ -151,6 +214,7 @@ export default function NoteScreen({navigation, route}) {
               onChangeText={handleChangeTitle}
               value={title}
             />
+            {/* <Text>title: {title}</Text> */}
           </View>
           <View style={styles.line} />
           <View style={styles.contentWrapper}>
@@ -162,10 +226,33 @@ export default function NoteScreen({navigation, route}) {
               onChangeText={handleChangeContent}
               value={content}
             />
-
+            {/* <Text>content: {content}</Text> */}
           </View>
         </ScrollView>
         </View>
+        {(undoStack.length>0||redoStack.length-1>0)&&<View style={styles.undoBar}>
+          <Button onPress={printUndoStack} title="undo"/>
+          <View style={{flex: 5}}/>
+          <FontAwesome5 
+            name="undo" 
+            size={26} 
+            color={COLOR.COLOR2} 
+            onPress={handleUndo}
+            disable={undoStack.length>0?false:true}
+            style={{opacity: undoStack.length>0?1:0.2}}
+          />
+          <View style={{flex: 2}}/>
+          <FontAwesome5 
+            name="redo" 
+            size={26} 
+            color={COLOR.COLOR2} 
+            onPress={handleRedo}
+            disable={redoStack.length>0?false:true}
+            style={{opacity: redoStack.length - 1>0?1:0.2}}
+          />
+          <View style={{flex: 5}}/>
+          <Button onPress={printRedoStack} title="redo"/>
+        </View>}
       </View>
     );
   }
@@ -204,5 +291,13 @@ const styles = StyleSheet.create({
   button: {
     color: COLOR.COLOR_HEADER_TEXT,
     paddingHorizontal: 15,
+  },
+  undoBar: {
+    flexDirection:'row',
+    elevation: 20,
+    backgroundColor: COLOR.COLOR5,
+    position: 'absolute',
+    bottom: 0,
+    padding: 10,
   }
 });

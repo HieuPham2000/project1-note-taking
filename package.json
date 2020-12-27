@@ -25,6 +25,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.3.tar.gz",
     "react-native-action-button": "^2.8.5",
     "react-native-data-table": "^0.2.1",
+    "react-native-debounce-input": "^1.0.5",
     "react-native-dialog": "^6.1.2",
     "react-native-editable-table": "^1.0.0",
     "react-native-elements": "^2.3.2",
@@ -40,8 +41,7 @@
     "react-navigation": "^4.4.2",
     "react-navigation-hooks": "^1.1.0",
     "react-redux": "^7.2.2",
-    "redux": "^4.0.5",
-    "uuid": "^8.3.2"
+    "redux": "^4.0.5"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"

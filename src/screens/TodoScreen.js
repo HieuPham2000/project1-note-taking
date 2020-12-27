@@ -76,6 +76,7 @@ export default function TodoScreen(props) {
       padding: 5, 
       borderWidth: 1, 
       borderRadius: 5,
+      borderColor: COLOR.COLOR2,
       backgroundColor: COLOR.COLOR3,
       color: numDone===todos.length?'green':COLOR.COLOR1}}
     >Hoàn thành: {numDone}/{todos.length} công việc</Text>)

@@ -2,9 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import React from 'react';
 import { ActivityIndicator, Button, Clipboard, Image, Share, StatusBar, StyleSheet, Text, View } from 'react-native';
-import uuid from 'uuid';
 import {app} from '../config'
-
 
 export default class App extends React.Component {
   state = {

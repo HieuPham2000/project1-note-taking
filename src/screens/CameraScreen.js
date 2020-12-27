@@ -4,7 +4,7 @@ import { Camera } from 'expo-camera';
 import { Button } from 'react-native';
 import {db, app} from '../config'
 
-const LINK = app.storage().ref().child("/image.png").getDownloadURL().then((url) => {console.log(url); return url;}).catch((e)=> console.log(e));
+//const LINK = app.storage().ref().child("/image.png").getDownloadURL().then((url) => {console.log(url); return url;}).catch((e)=> console.log(e));
 
 export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -12,8 +12,8 @@ export default function CameraScreen() {
   const cameraRef = useRef(null);
   const [capture, setCapture] = useState("");
   
-  const link = LINK;
-  //const LINK = 'https://firebasestorage.googleapis.com/v0/b/project-1-79684.appspot.com/o/image.png?alt=media&token=de8e9ea4-5523-48e6-8bc3-28c57f36084a'
+  //const link = LINK;
+  const LINK = 'https://firebasestorage.googleapis.com/v0/b/project-1-79684.appspot.com/o/image.png?alt=media&token=de8e9ea4-5523-48e6-8bc3-28c57f36084a'
   const takePicture = async () => {
     if (cameraRef) {
       try {
@@ -65,7 +65,7 @@ export default function CameraScreen() {
         </View>
         <Button onPress={() => takePicture()} title="Chụp"/>
       </Camera>
-      <Image source={{ uri: link }} style={{width:250,height:250}} />
+      <Image source={{ uri: LINK }} style={{width:250,height:250}} />
       
     </View>
   );
