@@ -23,7 +23,7 @@ export default function NoteScreen({navigation, route}) {
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const [idTimeout, setIdTimeout] = useState(null);
-  const [old, setOld] = useState(title);
+  const [old, setOld] = useState({title: title, content: content});
 
   const dispatch = useDispatch();
 
