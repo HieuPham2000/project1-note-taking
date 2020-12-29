@@ -8,7 +8,8 @@ import {
   ActivityIndicator, 
   Alert, 
   LogBox, 
-  Keyboard } from 'react-native';
+  Keyboard,
+  StatusBar } from 'react-native';
 import EmptyTodo from '../components/EmptyTodo';
 import * as COLOR from '../theme/color';
 import { TextInput } from 'react-native-gesture-handler';
@@ -22,6 +23,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import * as type from '../redux/actiontypes';
 import { db } from '../config'
+import { Share } from 'react-native';
 
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
@@ -42,13 +44,66 @@ export default function TodoScreen(props) {
       var todoData = querySnapShot.val() ? querySnapShot.val() : {};
       for(var key in todoData) {
         todoItem.push({...todoData[key]});
-      }
-      setTimeout(() => {
-        dispatch({ type: type.INIT_TODOS, payload: todoItem });
-        setLoading(false);
+      }})
+
+    setTimeout(async () => {
+      dispatch({ type: type.INIT_TODOS, payload: todoItem });
+      setLoading(false);
     }, 500);
-    })
+    
+    // headerLeft
+    // để đây sai vì nó chỉ load 1 lần (lúc khởi tạo)
+    // mà khi đó todos lại rỗng???
+    /* props.navigation.setOptions({
+      headerRight: () => (
+        <View>
+          <AntDesign
+            name="sharealt"
+            size={24}
+            style={styles.headerLeft}
+            onPress={shareTodos}
+          />
+        </View>
+      )
+    }) */
   }, [])
+
+  useEffect(() => {
+    props.navigation.setOptions({
+      headerRight: () => (
+        <View>
+          <AntDesign
+            name="sharealt"
+            size={24}
+            style={styles.headerLeft}
+            onPress={shareTodos}
+          />
+        </View>
+      )
+    })
+  }, [todos, loading]); // thiếu 1 trong 2 biến trong ngoặc vuông thì sẽ có lỗi lôgic
+
+  const shareTodos = () => {
+    if(!loading) {
+      let finished = todos.filter((i) => i.done === true);
+      let unFinished = todos.filter((i) => i.done === false);
+      let content = `Đã hoàn thành: ${finished.length}/${finished.length + unFinished.length}\n`;
+      content += `* Chưa hoàn thành:\n`;
+      unFinished.forEach((i, k) => {
+        content += `\t${k + 1}. ${i.body}\n`
+      })
+      content += `* Đã hoàn thành:\n`
+      finished.forEach((i, k) => {
+        content += `\t${k + 1}. ${i.body}\n`
+      })
+      Share.share({
+        title:"Todolist",
+        message: content
+      })
+    } else {
+      Alert.alert("Thông báo", "Dữ liệu đang được xử lý. Vui lòng thử lại sau!");
+    }
+  }
 
   const addTodo = () => {
     dispatch({type: type.NEW_TODO, payload: {done: false, body: presentTodo}});
@@ -140,7 +195,8 @@ export default function TodoScreen(props) {
   };
 
   return (
-    <View style={styles.container}>   
+    <View style={styles.container}>  
+      <StatusBar barStyle="default" /> 
       {todos.length > 0 && statistic()} 
       <ScrollView
         contentContainerStyle={{}}
@@ -274,4 +330,8 @@ const styles = StyleSheet.create({
     height: 22,
     color: 'white',
   },
+  headerLeft: {
+    color: COLOR.COLOR_HEADER_TEXT,
+    paddingHorizontal: 15,
+  }
 })

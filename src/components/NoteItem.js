@@ -42,10 +42,10 @@ export default function NoteItem({id, date, title, content, navigation}) {
     <View style={styles.noteItem} >
       <TouchableWithoutFeedback onLongPress={deleteNote} onPress={editNote}>
         <View>
-        <Text style={styles.itemDate}>{convertDate(date)}</Text>
-        {title!=="" && <Text style={styles.itemTitle}>{title}</Text>}
-        {title!=="" && <View style={styles.line} />}
-        <Text style={styles.itemContent}>{content}</Text>
+          <Text style={styles.itemDate}>{convertDate(date)}</Text>
+          {title!=="" && <Text style={styles.itemTitle}>{convertString(title)}</Text>}
+          {title!=="" && <View style={styles.line} />}
+          <Text style={styles.itemContent}>{convertString(content)}</Text>
         </View>
       </TouchableWithoutFeedback>
     </View>
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 5,
     margin: 10,
+    padding: 8
   },
   itemTitle: {
     fontWeight: '600',
@@ -73,10 +74,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     opacity: 0.2,
     borderColor: COLOR.COLOR2,
-    marginHorizontal: 10,
+    margin: 5,
   },
   itemContent: {
-    fontSize: 14,
+    fontSize: 16,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },

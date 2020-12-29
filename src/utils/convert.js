@@ -1,6 +1,6 @@
 const convertString = function (str) {
-  if (str.length > 300) {
-    return (str.slice(0, 300) + '...');
+  if (str.length > 400) {
+    return (str.slice(0, 400) + '...');
   }
   return str;
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, StatusBar} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import EmptyNote from '../components/EmptyNote'
@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import {db} from '../config';
 import * as type from '../redux/actiontypes'
+import { Share } from 'react-native';
 
 
 export default function HomeScreen(props) {
@@ -55,8 +56,16 @@ export default function HomeScreen(props) {
       })
   }, [])
   
+
+  const share = () => {
+    Share.share({
+      title: "Hello",
+      message: "Test",
+    })
+  }
   return (
-    <View style={styles.container}>  
+    <View style={styles.container}> 
+      <StatusBar barStyle="default" /> 
       <ScrollView
         contentContainerStyle={{}}
       >
@@ -111,7 +120,7 @@ export default function HomeScreen(props) {
             buttonColor="#3498db"
             title="Bảng"
             size={50}
-            onPress={() => props.navigation.navigate("CameraScreen")}
+            onPress={share}
           >
             <AntDesign
               name="table"

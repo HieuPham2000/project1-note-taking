@@ -168,7 +168,7 @@ function NoteStack() {
         <Stack.Screen 
           name="ImageScreen" 
           component={ImageScreen}
-          options={{title: 'Image'}}
+          options={{title: 'Ghi chú hình ảnh'}}
         />
         <Stack.Screen 
           name="CameraScreen" 
@@ -261,7 +261,6 @@ function SupportStack() {
       </Stack.Navigator>
   );
 }
-
 
 const styles = StyleSheet.create({
   button: {

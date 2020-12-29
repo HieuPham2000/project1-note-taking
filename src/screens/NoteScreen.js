@@ -1,11 +1,9 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, ScrollView, Alert, BackHandler } from 'react-native';
+import { StyleSheet, Text, TextInput, View, ScrollView, Alert, StatusBar } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as COLOR from '../theme/color'
 import * as type from  '../redux/actiontypes'
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { Button } from 'react-native';
 
 //import DelayInput from 'react-native-debounce-input'
 
@@ -213,7 +211,7 @@ export default function NoteScreen({navigation, route}) {
 
     return (
       <View style={styles.container}>
-        <View>
+        <StatusBar barStyle="default" />
         <ScrollView style={styles.wrapper}>
           <View style={styles.titleWrapper}>
             <TextInput
@@ -224,7 +222,7 @@ export default function NoteScreen({navigation, route}) {
               placeholder='Tiêu đề'
               multiline={true}
               numberOfLines={1}
-              autoFocus={true}
+              autoFocus={id===-1}
               onChangeText={handleChangeTitle}
               value={title}
             />
@@ -244,9 +242,8 @@ export default function NoteScreen({navigation, route}) {
             {/* <Text>content: {content}</Text> */}
           </View>
         </ScrollView>
-        </View>
         {(undoStack.length>0||redoStack.length-1>0)&&<View style={styles.undoBar}>
-          <Button onPress={printUndoStack} title="undo"/>
+          {/* <Button onPress={printUndoStack} title="undo"/> */}
           <View style={{flex: 5}}/>
           <FontAwesome5 
             name="undo" 
@@ -266,7 +263,7 @@ export default function NoteScreen({navigation, route}) {
             style={{opacity: redoStack.length - 1>0?1:0.2}}
           />
           <View style={{flex: 5}}/>
-          <Button onPress={printRedoStack} title="redo"/>
+          {/* <Button onPress={printRedoStack} title="redo"/> */}
         </View>}
       </View>
     );
@@ -284,16 +281,16 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     borderColor: COLOR.COLOR_NORMAL_TEXT,
   },
-  wrapper: {
-  },
   titleWrapper: {
     backgroundColor: COLOR.COLOR_BACKGROUND,
   },
   title: {
     fontSize: 20,
-    fontWeight: '500',
+    fontWeight: '800',
     textAlignVertical: 'top',
     padding: 10,
+    color: COLOR.COLOR2,
+    lineHeight: 30,
   },
   contentWrapper: {
     backgroundColor: COLOR.COLOR_BACKGROUND,
@@ -302,6 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlignVertical: 'top',
     padding: 10,
+    lineHeight: 30,
   },
   button: {
     color: COLOR.COLOR_HEADER_TEXT,
@@ -311,8 +309,6 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     elevation: 20,
     backgroundColor: COLOR.COLOR5,
-    position: 'absolute',
-    bottom: 0,
     padding: 10,
   }
 });
