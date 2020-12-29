@@ -14,10 +14,11 @@ import { ActivityIndicator,
   TextInput } from 'react-native';
 import { app } from '../config'
 import * as COLOR from '../theme/color'
-import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5, Entypo} from '@expo/vector-icons';
 import { uploadImageAsync} from '../utils/uploadImage'
 import { shareImage, copyToClipboard } from '../utils/shareImage'
 import RenderImage from '../components/MyImage'
+import { useRef } from 'react';
 
 
 
@@ -29,6 +30,8 @@ const H = Dimensions.get('window').height;
 export default function App({navigation, route}) {
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const scrollViewRef = useRef();
+
 
   const idNote = route.params===undefined? -1 : route.params.idNote;
   const titleNote = route.params===undefined? '' : route.params.titleNote;
@@ -167,47 +170,6 @@ export default function App({navigation, route}) {
     }
   };
 
-  const renderImage = () => {
-    if (!image) {
-      return;
-    }
-    
-    var a = Image.getSize(image, (width, height) => {
-      setRatio(height/width)
-    })
-    return (
-      <View
-        style={{
-          marginTop: 30,
-          borderRadius: 3,
-          elevation: 2,
-          width: 0.9*W,
-          alignSelf:'center'
-        }}>
-        {/* <View
-          style={{
-            borderTopRightRadius: 3,
-            borderTopLeftRadius: 3,
-            shadowColor: 'rgba(0,0,0,1)',
-            shadowOpacity: 0.2,
-            shadowOffset: { width: 4, height: 4 },
-            shadowRadius: 5,
-            overflow: 'hidden',
-            alignSelf:'center'
-          }}>
-          <Image source={{ uri: image }} style={{ width: 0.9*W, aspectRatio:1, resizeMode: 'contain'}} />
-        </View> */}
-        <Image source={{ uri: image }} style={{ width: 0.9*W, height: 0.9*W*ratio}} />
-        <Text
-          onPress={() => copyToClipboard(image)} // phải có () =>, vì func này...
-          onLongPress={() => shareImage(image)}
-          style={{ paddingVertical: 10, paddingHorizontal: 10 }}>
-          {image}
-        </Text>
-      </View>
-    );
-  };
-
 
   const takePhoto = async () => {
     let pickerResult = await ImagePicker.launchCameraAsync({
@@ -245,7 +207,12 @@ export default function App({navigation, route}) {
 
   return (
     <View style={{ flex: 1, backgroundColor:COLOR.COLOR_BACKGROUND}}>
-      <ScrollView>
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={(contentWidth, contentHeight)=>{        
+            {scrollViewRef.current.scrollToEnd({animated: true})}
+        }}
+      >
         <View style={styles.titleWrapper}>
           <TextInput
             style={styles.title}
@@ -270,15 +237,22 @@ export default function App({navigation, route}) {
         </View>
         <View></View>
         <RenderImage image={image} takePhoto={takePhoto} pickImageFromLibrary={pickImageFromLibrary}/>
+        {/* <Button
+          onPress={pickImageFromLibrary}
+          title="Chọn hình ảnh từ thư viện"
+        />
+        <Button onPress={takePhoto} title="Chụp ảnh" /> */}
       </ScrollView>
 
-      <Button
-        onPress={pickImageFromLibrary}
-        title="Chọn hình ảnh từ thư viện"
-      />
-
-      <Button onPress={takePhoto} title="Chụp ảnh" />
-
+      
+      <View style={styles.buttonUpImageBar}>
+          <Entypo name="camera" size={28} color={COLOR.COLOR2} 
+            onPress={takePhoto}
+          />
+          <Entypo name="folder-images" size={28} color={COLOR.COLOR2} 
+            onPress={pickImageFromLibrary}
+          />
+      </View>
       {/* {renderImage()} */}
       {renderUploadingOverlay()}
 
@@ -320,6 +294,13 @@ const styles = StyleSheet.create({
   button: {
     color: COLOR.COLOR_HEADER_TEXT,
     paddingHorizontal: 15,
+  },
+  buttonUpImageBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    elevation: 30,
+    backgroundColor: COLOR.COLOR5,
+    paddingVertical: 10,
   },
 });
 

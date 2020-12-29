@@ -25,7 +25,7 @@ import { ImageBackground } from 'react-native';
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
 
-export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
+export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
   const [ratio, setRatio] = useState(1);
   const [caption, setCaption] = useState("");
   const [linkImage, setImage] = useState(image);
@@ -34,6 +34,7 @@ export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
   }
   const deleteImage = () => {
     setImage(null);
+    setCaption("");
   }
   useEffect(() => {
     setImage(image);
@@ -43,7 +44,7 @@ export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
       return;
     }
 
-    var a = Image.getSize(linkImage, (width, height) => {
+    Image.getSize(linkImage, (width, height) => {
       setRatio(height / width)
     })
     return (
@@ -73,7 +74,6 @@ export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
               width: 0.9 * W,
               height: 0.9 * W * ratio,
             }}>
-            <View style={styles.buttonBar}>
 
               <View style={styles.copylinkContainer}>
                 <Entypo 
@@ -84,7 +84,7 @@ export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
                   onPress={() => copyToClipboard(linkImage)} // phải có () =>, vì func này...}
                 />
               </View>
-            </View>
+            
           </ImageBackground>
         </View>
         <View style={styles.line} />
@@ -99,12 +99,13 @@ export default function MyImage({ image, takePhoto, pickImageFromLibraty }) {
             value={caption}
           />
         </View>
+        
         <View style={styles.buttonBar}>
           <Entypo name="camera" size={28} color="black" 
             onPress={()=>takePhoto()}
           />
           <Entypo name="folder-images" size={28} color="black" 
-            onPress={()=>pickImageFromLibraty()}
+            onPress={()=>pickImageFromLibrary()}
           />
           <Entypo name="share" size={28} color="black" 
             onPress={() => shareImage(linkImage)}
@@ -150,7 +151,8 @@ const styles = StyleSheet.create({
   buttonBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20
+    marginBottom: 20,
+    opacity: 0.4
   },
   copylinkContainer: {
     flex: 1,
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   copylink: {
-    opacity: 0.5
+    opacity: 0.5 
   },
 });
 
