@@ -17,25 +17,6 @@ class Table extends Component {
 
     this.handleChangeText = this.handleChangeText.bind(this);
   }
-
-  //async UNSAFE_componentWillMout
-  /* async componentDidMount() {
-    let row = await this.props.numberOfRow;
-    let col = await this.props.numberOfCol;
-    console.log(row + " - " + col);
-    let tmp = new Array(row);
-    for(var i = 0; i < row; i++) {
-      tmp[i] = new Array(col);
-      tmp[i].fill("");
-    }
-    let w = new Array(col);
-    w.fill(100)
-    this.setState({
-      tableData: [...tmp],
-      widthCell: [...w]
-    })
-  } */
-
   componentDidUpdate() {
     let numberOfRow = this.props.numberOfRow;
     let numberOfCol = this.props.numberOfCol;

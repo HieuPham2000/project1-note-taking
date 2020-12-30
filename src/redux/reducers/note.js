@@ -1,5 +1,5 @@
 import * as type from '../actiontypes'
-import { db } from '../../config'
+import { db, app } from '../../config'
 
 const noteReducer = (state = [], action) => {
   switch(action.type) {
@@ -58,7 +58,7 @@ const noteReducer = (state = [], action) => {
       myRef = db.ref("/notes").push();
       key = myRef.key;
       date = Date.now();
-      newTextNote = {
+      let newImageNote = {
         key: key,
         date: date,
         typeNote: 'image',
@@ -66,10 +66,46 @@ const noteReducer = (state = [], action) => {
         content: action.payload.content,
         image: action.payload.image
       }
-      myRef.set({...newTextNote});
+      myRef.set({...newImageNote});
       // local
-      return [newTextNote,...state];
+      return [newImageNote,...state];
 
+    case type.DELETE_IMAGE_NOTE:
+      indexDelete = state.findIndex((note) => note.key === action.payload);
+      newStateDelete = [...state];
+      // firebase
+      db.ref('/notes').child(action.payload).remove();
+      // remove ảnh
+      newStateDelete[indexDelete].image.map((i) => {
+        app.storage().ref().child(i.name).delete();
+      })
+      // local
+      newStateDelete.splice(indexDelete, 1);
+      return newStateDelete;
+
+    case type.UPDATE_IMAGE_NOTE:
+      index = state.findIndex((note) => note.key === action.payload.id);
+      newState = [...state];
+      // firebase
+      db.ref('/notes').child(action.payload.id).remove();
+      // remove
+      //let removeImages = action.payload.oldImages.filter((i) => !action.payload.image.include(i));
+      // add new note
+      myRef = db.ref("/notes").push();
+      key = myRef.key;
+      date = Date.now();
+      newImageNote = {
+        key: key,
+        date: date,
+        typeNote: 'image',
+        title: action.payload.title,
+        content: action.payload.content,
+        image: action.payload.image
+      }
+      myRef.set({...newImageNote});
+      // local
+      newState.splice(index, 1);
+      return [newImageNote, ...newState];
 
 
     default:
@@ -78,33 +114,3 @@ const noteReducer = (state = [], action) => {
 }
 
 export default noteReducer;
-
-
-/* const noteReducer = (state = [], action) => {
-  switch(action.type) {
-    case type.NEW_NOTE:
-      let date = Date.now();
-      return [{ id: date, date: date, title: action.payload.title, content: action.payload.content }, ...state];
-    
-    case type.DELETE_NOTE:
-      let indexDelete = state.findIndex((note) => note.id === action.payload);
-      let newStateDelete = [...state];
-      newStateDelete.splice(indexDelete, 1);
-      return newStateDelete;
-      
-    case type.UPDATE_NOTE:
-      //let index = state.findIndex((note) => note.id === action.payload.id);
-      //console.log(index);
-      let index = action.payload.id;
-      let newState = [...state];
-      newState.splice(index, 1);
-
-      date = Date.now();
-      return [{ id: date, date: date, title: action.payload.title, content: action.payload.content }, ...newState];
-    
-    default:
-      return state;
-  }
-}
-
-export default noteReducer; */

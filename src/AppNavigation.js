@@ -5,7 +5,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import * as COLOR from './theme/color'
-import { HomeScreen, NoteScreen, TodoScreen, SupportScreen, ImageScreen, CameraScreen } from './screens'
+import { HomeScreen, NoteScreen, TodoScreen, SupportScreen, ImageScreen, TableScreen } from './screens'
 import { FontAwesome } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import {
@@ -100,7 +100,7 @@ export default function Navigator() {
             drawerIcon: ({ focused, color, size }) => <AntDesign name={focused ? 'checksquare' : 'checksquareo'} size={size} color={color} />
           }} 
         />
-        <Drawer.Screen 
+        {/* <Drawer.Screen 
           name="SupportStack" 
           component={SupportStack}
           options={{
@@ -108,7 +108,7 @@ export default function Navigator() {
             drawerIcon: ({ focused, color, size }) => <AntDesign name={focused ? 'questioncircle' : 'questioncircleo'} size={size} color={color} />
           }} 
           
-        />
+        /> */}
       </Drawer.Navigator> 
     </NavigationContainer>
   );
@@ -171,10 +171,10 @@ function NoteStack() {
           options={{title: 'Ghi chú hình ảnh'}}
         />
         <Stack.Screen 
-          name="CameraScreen" 
-          component={CameraScreen}
+          name="TableScreen" 
+          component={TableScreen}
           options={ ({ navigation }) => ({ 
-            title: 'Camera', 
+            title: 'Ghi chú bảng', 
             headerRight: () => (
               <View>
                 <MaterialIcons

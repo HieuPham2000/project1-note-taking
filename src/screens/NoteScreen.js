@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     padding: 10,
     color: COLOR.COLOR2,
-    lineHeight: 30,
+    //lineHeight: 30,
   },
   contentWrapper: {
     backgroundColor: COLOR.COLOR_BACKGROUND,
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlignVertical: 'top',
     padding: 10,
-    lineHeight: 30,
+    //lineHeight: 25,
   },
   button: {
     color: COLOR.COLOR_HEADER_TEXT,

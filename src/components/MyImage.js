@@ -1,5 +1,3 @@
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
 import React, { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import {
@@ -12,7 +10,7 @@ import {
   View,
   Dimensions,
   ScrollView,
-  TextInput, TouchableOpacity
+  TextInput, TouchableWithoutFeedback, Modal, TouchableHighlight, TouchableOpacity
 } from 'react-native';
 import { app } from '../config'
 import * as COLOR from '../theme/color'
@@ -25,20 +23,13 @@ import { ImageBackground } from 'react-native';
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
 
-export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
+export default function MyImage({ linkImage, caption, id, takePhoto, pickImageFromLibrary, setCaption, deleteImage}) {
   const [ratio, setRatio] = useState(1);
-  const [caption, setCaption] = useState("");
-  const [linkImage, setImage] = useState(image);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const handleChangeCaption = (text) => {
-    setCaption(text);
+    setCaption(text, id);
   }
-  const deleteImage = () => {
-    setImage(null);
-    setCaption("");
-  }
-  useEffect(() => {
-    setImage(image);
-  }, [image])
   const renderImage = () => {
     if (!linkImage) {
       return;
@@ -50,12 +41,12 @@ export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
     return (
       <View
         style={{
-          marginTop: 30,
+          //marginTop: 30,
           borderRadius: 3,
           elevation: 2,
           width: 0.9 * W,
           alignSelf: 'center',
-          marginBottom: 20,
+          marginBottom: 30,
         }}>
         <View
           style={{
@@ -68,6 +59,7 @@ export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
             overflow: 'hidden',
             alignSelf: 'center'
           }}>
+          <TouchableHighlight onPress={() => setModalVisible(true)}>
           <ImageBackground
             source={{ uri: linkImage }}
             style={{
@@ -86,6 +78,7 @@ export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
               </View>
             
           </ImageBackground>
+          </TouchableHighlight>
         </View>
         <View style={styles.line} />
         <View style={styles.captionWrapper}>
@@ -99,27 +92,61 @@ export default function MyImage({ image, takePhoto, pickImageFromLibrary }) {
             value={caption}
           />
         </View>
-        
-        <View style={styles.buttonBar}>
-          <Entypo name="camera" size={28} color="black" 
-            onPress={()=>takePhoto()}
-          />
-          <Entypo name="folder-images" size={28} color="black" 
-            onPress={()=>pickImageFromLibrary()}
-          />
-          <Entypo name="share" size={28} color="black" 
-            onPress={() => shareImage(linkImage)}
-          />
-          <MaterialIcons name="delete" size={28} color="black" 
-            onPress={deleteImage} 
-          />
-        </View>
       </View>
     );
   };
 
   return (
     <View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={()=>setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <AntDesign 
+              name="close" 
+              size={30} 
+              color={COLOR.COLOR6} 
+              style={{alignSelf:'flex-end', opacity: 0.6}} 
+              onPress={() => setModalVisible(false)} 
+            />
+            <TouchableOpacity 
+              onPress={()=> {takePhoto(id); setModalVisible(false)}} 
+              style={styles.handleImg}
+            >
+              <Entypo name="camera" size={30} color={COLOR.COLOR2} />
+              <Text style={styles.handleImgText}>Chụp ảnh</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={()=> {pickImageFromLibrary(id); setModalVisible(false)}} 
+              style={styles.handleImg}
+            >
+              <Entypo name="folder-images" size={30} color={COLOR.COLOR2} />
+              <Text style={styles.handleImgText}>Chọn ảnh từ thư viện</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity  
+              onPress={() => {shareImage(linkImage); setModalVisible(false)}} 
+              style={styles.handleImg}
+            >
+              <Entypo name="share" size={30} color={COLOR.COLOR2}  />
+              <Text style={styles.handleImgText}>Chia sẻ ảnh</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity  
+              onPress={() => {deleteImage(id); setModalVisible(false)}} 
+              style={styles.handleImg
+            }>
+              <MaterialIcons name="delete" size={30} color={COLOR.COLOR2} />
+              <Text style={styles.handleImgText}>Xóa ảnh</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       {renderImage()}
     </View>
   )
@@ -132,7 +159,7 @@ const styles = StyleSheet.create({
   },
   line: {
     borderWidth: 1,
-    opacity: 0.3,
+    opacity: 0.2,
     borderColor: COLOR.COLOR_NORMAL_TEXT,
   },
   captionWrapper: {
@@ -148,22 +175,46 @@ const styles = StyleSheet.create({
     padding: 10,
     lineHeight: 20,
   },
-  buttonBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-    opacity: 0.4
-  },
   copylinkContainer: {
     flex: 1,
     backgroundColor: 'transparent',
-    flexDirection: 'row',
     margin: 20,
-    justifyContent: 'flex-end'
   },
   copylink: {
-    opacity: 0.5 
+    opacity: 0.6,
+    alignSelf:'flex-end'
   },
+
+  handleImg: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    opacity: 1,
+  },
+  handleImgText: {
+    textAlignVertical: 'center',
+    fontSize: 18,
+    color: COLOR.COLOR2,
+    marginLeft: 30
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: COLOR.COLOR_BACKGROUND,
+    borderRadius: 5,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
 });
 
 

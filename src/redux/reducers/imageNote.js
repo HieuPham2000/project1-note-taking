@@ -1,76 +1,47 @@
 import * as type from '../actiontypes'
-import { db } from '../../config'
+import { db, app } from '../../config'
+import { uploadImageAsync } from '../../utils/uploadImage'
 
 const imageNoteReducer = (state = [], action) => {
   switch(action.type) {
-    case type.INIT_NOTES:
-      return action.payload;
+    case type.INIT_IMAGES:
+      return [...action.payload]
 
-    case type.NEW_TEXT_NOTE:
-      // firebase
-      let myRef = db.ref("/notes").push();
-      let key = myRef.key;
-      let date = Date.now();
-      let newTextNote = {
-        key: key,
-        date: date,
-        typeNote: 'text',
-        title: action.payload.title,
-        content: action.payload.content,
+    case type.ADD_IMAGE:
+      let newImage = {
+        name: action.payload.name,
+        uri: action.payload.uri,
+        caption: ""
       }
-      myRef.set({...newTextNote});
-      // local
-      return [newTextNote,...state];
+      return [...state, newImage];
     
-    case type.DELETE_TEXT_NOTE:
-      let indexDelete = state.findIndex((note) => note.key === action.payload);
-      let newStateDelete = [...state];
-      // firebase
-      db.ref('/notes').child(action.payload).remove();
-      // local
-      newStateDelete.splice(indexDelete, 1);
-      return newStateDelete;
-      
-    case type.UPDATE_TEXT_NOTE:
-      //let index = state.findIndex((note) => note.id === action.payload);
-      let index = state.findIndex((note) => note.key === action.payload.id);
-      let newState = [...state];
-      // firebase
-      db.ref('/notes').child(action.payload.id).remove();
-      myRef = db.ref("/notes").push();
-      key = myRef.key;
-      date = Date.now();
-      newTextNote = {
-        key: key,
-        date: date,
-        typeNote: 'text',
-        title: action.payload.title,
-        content: action.payload.content,
+    case type.DELETE_IMAGE:
+      try {
+        app.storage().ref().child(action.payload).delete();
+      } catch (error) {
+        console.log(error)
       }
-      myRef.set({...newTextNote});
-      // local
+      let newState = [...state]
+      let index = newState.findIndex((i) => i.name == action.payload);
       newState.splice(index, 1);
-      return [newTextNote, ...newState];
-    
-    
-    case type.NEW_IMAGE_NOTE:
-      // firebase
-      myRef = db.ref("/notes").push();
-      key = myRef.key;
-      date = Date.now();
-      newTextNote = {
-        key: key,
-        date: date,
-        typeNote: 'image',
-        title: action.payload.title,
-        content: action.payload.content,
-        image: action.payload.image
+      return [...newState];
+
+    case type.UPDATE_IMAGE:
+      if(action.payload.id==-1) {
+        app.storage().ref().child(action.payload.old).delete();
       }
-      myRef.set({...newTextNote});
-      // local
-      return [newTextNote,...state];
+      newState = [...state]
+      index = newState.findIndex((i) => i.name == action.payload.old);
+      newState[index].name = action.payload.name;
+      newState[index].uri = action.payload.uri;
+      newState[index].caption = "";
+      return [...newState];
 
-
+    case type.UPDATE_CAPTION:
+      newState = [...state]
+      index = newState.findIndex((i) => i.name == action.payload.name);
+      newState[index].caption = action.payload.text;
+      return [...newState];
 
     default:
       return state;

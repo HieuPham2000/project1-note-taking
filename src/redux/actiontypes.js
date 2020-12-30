@@ -17,3 +17,9 @@ export const UPDATE_TEXT_NOTE = 'UPDATE_NOTE';
 export const NEW_IMAGE_NOTE = 'NEW_IMAGE_NOTE';
 export const DELETE_IMAGE_NOTE = 'DELETE_IMAGE_NOTE';
 export const UPDATE_IMAGE_NOTE = 'UPDATE_IMAGE_NOTE';
+
+export const INIT_IMAGES = 'INIT_IMAGES'
+export const ADD_IMAGE = 'ADD_IMAGE';
+export const DELETE_IMAGE = 'DELETE_IMAGE';
+export const UPDATE_IMAGE = 'UPDATE_IMAGE';
+export const UPDATE_CAPTION = 'UPDATE_CAPTION';

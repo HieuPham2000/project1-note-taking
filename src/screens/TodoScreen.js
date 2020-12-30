@@ -15,7 +15,7 @@ import * as COLOR from '../theme/color';
 import { TextInput } from 'react-native-gesture-handler';
 import { useState, useEffect, useRef } from 'react';
 import TodoItem from '../components/TodoItem'
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 //Import ActionButton
 import ActionButton from 'react-native-action-button';
 //Import Icon for the ActionButton
@@ -72,10 +72,10 @@ export default function TodoScreen(props) {
     props.navigation.setOptions({
       headerRight: () => (
         <View>
-          <AntDesign
-            name="sharealt"
+          <Entypo
+            name="share"
             size={24}
-            style={styles.headerLeft}
+            style={styles.headerRight}
             onPress={shareTodos}
           />
         </View>
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     height: 22,
     color: 'white',
   },
-  headerLeft: {
+  headerRight: {
     color: COLOR.COLOR_HEADER_TEXT,
     paddingHorizontal: 15,
   }

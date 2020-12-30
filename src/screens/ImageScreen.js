@@ -19,34 +19,39 @@ import { uploadImageAsync} from '../utils/uploadImage'
 import { shareImage, copyToClipboard } from '../utils/shareImage'
 import RenderImage from '../components/MyImage'
 import { useRef } from 'react';
-
-
-
-
+import { useDispatch, useSelector } from 'react-redux';
+import * as type from '../redux/actiontypes'
 
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
 
 export default function App({navigation, route}) {
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const scrollViewRef = useRef();
-
-
   const idNote = route.params===undefined? -1 : route.params.idNote;
   const titleNote = route.params===undefined? '' : route.params.titleNote;
   const contentNote = route.params===undefined? '' : route.params.contentNote;
-  //console.log(idNote + " " + titleNote + " " + contentNote);
+  const imageNote = route.params===undefined? [] : route.params.imageNote;
 
   const [id, setId] = useState(idNote);
   const [title, setTitle] = useState(titleNote);
   const [content, setContent] = useState(contentNote);
+  const image = useSelector((state) => state.imageNote)
+  const [uploading, setUploading] = useState(false);
+  const scrollViewRef = useRef();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
       await Permissions.askAsync(Permissions.CAMERA_ROLL);
       await Permissions.askAsync(Permissions.CAMERA);
     })();
+  }, []);
+
+  useEffect(() => {
+    if(route.params!==undefined) {
+      dispatch({type: type.INIT_IMAGES, payload: route.params.imageNote});
+    } else {
+      dispatch({type: type.INIT_IMAGES, payload: []})
+    }
   }, []);
 
 
@@ -83,23 +88,26 @@ export default function App({navigation, route}) {
     setContent(text);
   }
 
-  const saveNote = () => {
-    //dispatch({type: type.NEW_NOTE, payload: {title: title, content: content} })
-    dispatch({type: type.NEW_TEXT_NOTE, payload: {title: title, content: content} })
+  const saveImageNote = () => {
+    dispatch({type: type.NEW_IMAGE_NOTE, payload: {title: title, content: content, image: image} })
     navigation.navigate('HomeScreen');
   }
 
-  const updateNote = () => {
-    //dispatch({type: type.UPDATE_NOTE, payload: {id: id, title: title, content: content} })
-    dispatch({type: type.UPDATE_TEXT_NOTE, payload: {id: id, title: title, content: content} })
+  const updateImageNote = () => {
+    dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: image} })
+    navigation.navigate('HomeScreen');
+  }
+
+  const notUpdateImageNote = () => {
+    //dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: imageNote} })
     navigation.navigate('HomeScreen');
   }
 
   const confirm = () => {
     if(id===-1) {
-      saveNote();
+      saveImageNote();
       Alert.alert('Thông báo','Tạo ghi chú thành công!');
-    } else if (title !== titleNote || content != contentNote) {
+    } else if (title !== titleNote || content != contentNote || image != imageNote) {
       Alert.alert(
         'Cập nhật ghi chú',
         'Bạn muốn cập nhật ghi chú hiện tại?',
@@ -108,7 +116,7 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Cập nhật', onPress: () => updateNote() },
+          { text: 'Cập nhật', onPress: () => updateImageNote() },
         ],
         { cancelable: false }
       );
@@ -121,18 +129,18 @@ export default function App({navigation, route}) {
     if(id===-1) {
       Alert.alert(
         'Chú ý',
-        'Bạn chưa lưu ghi chú! Bạn có muốn lưu ghi chú hiện tại?',
+        'Bạn chưa lưu ghi chú! Tất cả hình ảnh sẽ bị xóa. Bạn có muốn lưu?',
         [
           {
             text: 'Hủy',
             style: 'cancel',
           },
           { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
-          { text: 'Lưu', onPress: () => saveNote() }
+          { text: 'Lưu', onPress: () => saveImageNote() }
         ],
         { cancelable: false }
       );
-    } else if (title !== titleNote || content != contentNote) {
+    } else if (title !== titleNote || content != contentNote || image != imageNote ) {
       Alert.alert(
         'Chú ý',
         'Thay đổi chưa được lưu! Bạn có muốn lưu thay đổi? ',
@@ -141,8 +149,8 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
-          { text: 'Lưu', onPress: () => updateNote() }
+          { text: 'Không lưu', onPress: () => notUpdateImageNote() },
+          { text: 'Lưu', onPress: () => updateImageNote() }
         ],
         { cancelable: false }
       );
@@ -171,47 +179,61 @@ export default function App({navigation, route}) {
   };
 
 
-  const takePhoto = async () => {
+  const takePhoto = async (pos) => {
     let pickerResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       //aspect: [4, 3],
     });
 
-    handleImagePicked(pickerResult);
+    handleImagePicked(pickerResult, pos);
   };
 
-  const pickImageFromLibrary = async () => {
+  const pickImageFromLibrary = async (pos) => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       //aspect: [4, 3],
     });
 
-    handleImagePicked(pickerResult);
+    handleImagePicked(pickerResult, pos);
   };
 
-  const handleImagePicked = async pickerResult => {
+  const handleImagePicked = async (pickerResult, pos) => {
     try {
       setUploading(true);
 
       if (!pickerResult.cancelled) {
-        //const uploadUrl = await uploadImageAsync(pickerResult.uri);
-        setImage(pickerResult.uri);
+        const nameImage = String(Date.now())
+        const uploadUrl = await uploadImageAsync(nameImage, pickerResult.uri);
+        if(pos==-1) {
+          dispatch({type: type.ADD_IMAGE, payload: {name: nameImage, uri: uploadUrl}})
+          setTimeout(() => scrollViewRef.current.scrollToEnd({animated: false}), 1000);
+        } else {
+          // lỗi khi xóa 
+          /* dispatch({type: type.UPDATE_IMAGE, payload: {id:idNote, name: pos, uri: uploadUrl}}) */
+          dispatch({type: type.UPDATE_IMAGE, payload: {id:idNote, old: pos, name: nameImage, uri: uploadUrl}})
+        } 
       }
     } catch (e) {
       console.log(e);
       Alert.alert('Thông báo', 'Upload thất bại!');
     } finally {
+      /* console.log("image");
+      console.log(image); */
       setUploading(false);
     }
   };
 
+
+  const setCaptionImage = (text, id) => {
+    dispatch({type: type.UPDATE_CAPTION, payload: {text: text, name: id}});
+  }
+  const deleteImage = (id) => {
+    dispatch({type: type.DELETE_IMAGE, payload: id});
+  }
   return (
     <View style={{ flex: 1, backgroundColor:COLOR.COLOR_BACKGROUND}}>
       <ScrollView
         ref={scrollViewRef}
-        onContentSizeChange={(contentWidth, contentHeight)=>{        
-            {scrollViewRef.current.scrollToEnd({animated: true})}
-        }}
       >
         <View style={styles.titleWrapper}>
           <TextInput
@@ -236,24 +258,29 @@ export default function App({navigation, route}) {
           />
         </View>
         <View></View>
-        <RenderImage image={image} takePhoto={takePhoto} pickImageFromLibrary={pickImageFromLibrary}/>
-        {/* <Button
-          onPress={pickImageFromLibrary}
-          title="Chọn hình ảnh từ thư viện"
-        />
-        <Button onPress={takePhoto} title="Chụp ảnh" /> */}
+        {image && image.length > 0 && image.map((i,k) => 
+          <RenderImage 
+            linkImage={i.uri} 
+            caption={i.caption} 
+            key={k}
+            id={i.name} 
+            takePhoto={takePhoto} 
+            pickImageFromLibrary={pickImageFromLibrary}
+            setCaption={setCaptionImage}
+            deleteImage={deleteImage}
+          />
+        )}
       </ScrollView>
 
       
       <View style={styles.buttonUpImageBar}>
           <Entypo name="camera" size={28} color={COLOR.COLOR2} 
-            onPress={takePhoto}
+            onPress={() => takePhoto(-1)}
           />
           <Entypo name="folder-images" size={28} color={COLOR.COLOR2} 
-            onPress={pickImageFromLibrary}
+            onPress={() => pickImageFromLibrary(-1)}
           />
       </View>
-      {/* {renderImage()} */}
       {renderUploadingOverlay()}
 
       <StatusBar barStyle="default" />

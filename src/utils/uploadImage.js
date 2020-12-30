@@ -1,7 +1,8 @@
-import { app } from '../config'
+import { app, db } from '../config'
+import * as Random from 'expo-random'
 
 
-export async function uploadImageAsync(uri) {
+export async function uploadImageAsync(name, uri) {
 
   const blob = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -20,8 +21,7 @@ export async function uploadImageAsync(uri) {
   const ref = app
     .storage()
     .ref()
-    .child("/image.png");
-
+    .child(name);
   const snapshot = await ref.put(blob);
   // We're done with the blob, close and release it
   blob.close();

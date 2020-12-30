@@ -1,6 +1,15 @@
 const convertString = function (str) {
-  if (str.length > 400) {
-    return (str.slice(0, 400) + '...');
+  if (str.length > 500) {
+    // đảm bảo không ngắt giữa từ
+    //var pos = str.indexOf(' ', 400);
+    var pos = str.indexOf('.', 400);
+    if(pos == -1) {
+      pos = str.indexOf(' ', 400);
+    }
+    if(pos == -1) {
+      pos = 400;
+    }
+    return (str.slice(0, pos) + '...');
   }
   return str;
 }
