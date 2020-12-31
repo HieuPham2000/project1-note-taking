@@ -1,4 +1,3 @@
-import { TODOS } from '../../utils/dataTodos';
 import * as type from '../actiontypes'
 import { db } from '../../config'
 

@@ -1,0 +1,151 @@
+import * as type from '../actiontypes'
+
+const tableReducer = (state = [], action) => {
+  switch(action.type) {
+    case type.INIT_TABLE:
+      return [...action.payload]
+
+    case type.ADD_TABLE:
+      let numberOfRow = action.payload.row;
+      let numberOfCol = action.payload.col;
+      /* let tmp = new Array(numberOfRow + 1);
+      for(var i = 0; i < numberOfRow + 1; i++) {
+        tmp[i] = new Array(numberOfCol + 1);
+        tmp[i].fill("");
+      } */
+      let tmp = [...Array(numberOfRow + 1)].map((i) => Array(numberOfCol + 1).fill(""))
+      
+      for(var i = 0; i < numberOfRow + 1; i++) {
+        tmp[i][0] = String(i);
+      }
+      for(var j = 0; j < numberOfCol + 1; j++) {
+        tmp[0][j] = String(j);
+      }
+      tmp[0][0] = "";
+      return tmp;
+
+    case type.CHANGE_TEXT_CELL:
+      tmp = [...state];
+      let indexRow = action.payload.row;
+      let indexCol = action.payload.col;
+      tmp[indexRow][indexCol] = action.payload.text;
+      return tmp;
+
+    case type.DELETE_TABLE:
+      return [];
+
+    case type.DELETE_DATA_IN_TABLE:
+      numberOfRow = state.length;
+      numberOfCol = state[0].length;
+      tmp = [...Array(numberOfRow + 1)].map((i) => Array(numberOfCol + 1).fill(""))
+      for(var i = 0; i < numberOfRow + 1; i++) {
+        tmp[i][0] = String(i);
+      }
+      for(var j = 0; j < numberOfCol + 1; j++) {
+        tmp[0][j] = String(j);
+      }
+      tmp[0][0] = "";
+      return tmp;
+
+    case type.DELETE_ROW:
+      tmp = [];
+      let len = state.length;
+      if(action.payload.index <= len) {
+        for(let i = 0; i < len; i++) {
+          tmp.push([...state[i]]);
+        }
+        tmp.splice(action.payload.index, 1);
+        return tmp;
+      }
+      return state;
+      
+
+    case type.DELETE_DATA_IN_ROW:
+      tmp = [];
+      len = state.length;
+      if(action.payload.index <= len) {
+        for(let i = 0; i < len; i++) {
+          tmp.push([...state[i]]);
+        }
+        tmp[action.payload.index].fill("");
+        return tmp;
+      }
+      return state;
+      
+
+    case type.DELETE_COLUMN:
+      tmp = [];
+      len = state.length;
+      let numCol = state[0].length;
+      if(action.payload.index <= numCol) {
+        for(let i = 0; i < len; i++) {
+          let tmp_row = [...state[i]];
+          tmp_row.splice(action.payload.index, 1);
+          tmp.push([...tmp_row]);
+        }
+        return tmp;
+      }
+      return state;
+      
+
+    case type.DELETE_DATA_IN_COLUMN:
+      tmp = [];
+      len = state.length;
+      numCol = state[0].length;
+      if(action.payload.index <= numCol) {
+        for(let i = 0; i < len; i++) {
+          let tmp_row = [...state[i]];
+          tmp_row[action.payload.index] = "";
+          tmp.push([...tmp_row]);
+        }
+        return tmp;
+      }
+      return state;
+      
+
+    case type.ADD_ROW:
+      tmp = [];
+      len = state.length;
+      let index = action.payload.index;
+      if(index <= 0) {
+        index = 1;
+      } else if(index > len) {
+        index = len;
+      }
+      for(let i = 0; i < len; i++) {
+        /* if(i==action.payload.index) {
+          let numCol = state[i].length;
+          tmp.push(Array(numCol).fill(""));
+        } */
+        tmp.push([...state[i]]);
+      }
+      numCol = state[0].length;
+      tmp.splice(index, 0, Array(numCol).fill(""));
+      return tmp;
+
+    case type.ADD_COLUMN:
+      tmp = [];
+      len = state.length;
+      numCol = state[0].length;
+      index = action.payload.index;
+      if(index <= 0) {
+        index = 1;
+      } else if(index > numCol) {
+        index = numCol;
+      }
+      for(let i = 0; i < len; i++) {
+        // insert bằng splice
+        let tmp_row = [...state[i]];
+        tmp_row.splice(action.payload.index, 0, "");
+        tmp.push([...tmp_row]);
+      }
+      return tmp;
+
+    default:
+      return state;
+  }
+}
+
+export default tableReducer;
+
+

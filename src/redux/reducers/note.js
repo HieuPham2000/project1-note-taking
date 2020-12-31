@@ -2,7 +2,7 @@ import * as type from '../actiontypes'
 import { db, app } from '../../config'
 
 const noteReducer = (state = [], action) => {
-  switch(action.type) {
+  switch (action.type) {
     case type.INIT_NOTES:
       return action.payload;
 
@@ -18,10 +18,10 @@ const noteReducer = (state = [], action) => {
         title: action.payload.title,
         content: action.payload.content,
       }
-      myRef.set({...newTextNote});
+      myRef.set({ ...newTextNote });
       // local
-      return [newTextNote,...state];
-    
+      return [newTextNote, ...state];
+
     case type.DELETE_TEXT_NOTE:
       let indexDelete = state.findIndex((note) => note.key === action.payload);
       let newStateDelete = [...state];
@@ -30,7 +30,7 @@ const noteReducer = (state = [], action) => {
       // local
       newStateDelete.splice(indexDelete, 1);
       return newStateDelete;
-      
+
     case type.UPDATE_TEXT_NOTE:
       //let index = state.findIndex((note) => note.id === action.payload);
       let index = state.findIndex((note) => note.key === action.payload.id);
@@ -47,12 +47,12 @@ const noteReducer = (state = [], action) => {
         title: action.payload.title,
         content: action.payload.content,
       }
-      myRef.set({...newTextNote});
+      myRef.set({ ...newTextNote });
       // local
       newState.splice(index, 1);
       return [newTextNote, ...newState];
-    
-    
+
+
     case type.NEW_IMAGE_NOTE:
       // firebase
       myRef = db.ref("/notes").push();
@@ -66,9 +66,9 @@ const noteReducer = (state = [], action) => {
         content: action.payload.content,
         image: action.payload.image
       }
-      myRef.set({...newImageNote});
+      myRef.set({ ...newImageNote });
       // local
-      return [newImageNote,...state];
+      return [newImageNote, ...state];
 
     case type.DELETE_IMAGE_NOTE:
       indexDelete = state.findIndex((note) => note.key === action.payload);
@@ -102,12 +102,66 @@ const noteReducer = (state = [], action) => {
         content: action.payload.content,
         image: action.payload.image
       }
-      myRef.set({...newImageNote});
+      myRef.set({ ...newImageNote });
       // local
       newState.splice(index, 1);
       return [newImageNote, ...newState];
 
 
+
+    case type.NEW_TABLE_NOTE:
+      // firebase
+      myRef = db.ref("/notes").push();
+      key = myRef.key;
+      date = Date.now();
+      // console.log(action.payload.table);
+      let newTableNote = {
+        key: key,
+        date: date,
+        typeNote: 'table',
+        title: action.payload.title,
+        content: action.payload.content,
+        row: action.payload.row,
+        col: action.payload.col,
+        table: action.payload.table,
+      }
+      myRef.set({ ...newTableNote });
+      // local
+      return [newTableNote, ...state];
+
+    case type.DELETE_TABLE_NOTE:
+      indexDelete = state.findIndex((note) => note.key === action.payload);
+      newStateDelete = [...state];
+      // firebase
+      db.ref('/notes').child(action.payload).remove();
+      // local
+      newStateDelete.splice(indexDelete, 1);
+      return newStateDelete;
+
+    case type.UPDATE_TABLE_NOTE:
+      //let index = state.findIndex((note) => note.id === action.payload);
+      index = state.findIndex((note) => note.key === action.payload.id);
+      newState = [...state];
+      // firebase
+      db.ref('/notes').child(action.payload.id).remove();
+      myRef = db.ref("/notes").push();
+      key = myRef.key;
+      date = Date.now();
+      newTextNote = {
+        key: key,
+        date: date,
+        typeNote: 'table',
+        row: action.payload.row,
+        col: action.payload.col,
+        title: action.payload.title,
+        content: action.payload.content,
+        table: action.payload.table,
+      }
+      myRef.set({ ...newTextNote });
+      // local
+      newState.splice(index, 1);
+      return [newTextNote, ...newState];
+      
     default:
       return state;
   }

@@ -5,6 +5,7 @@ import EmptyNote from '../components/EmptyNote'
 import * as COLOR from '../theme/color'
 import NoteItem from '../components/NoteItem'
 import NoteImageItem from '../components/NoteImageItem'
+import NoteTableItem from '../components/NoteTableItem'
 import ActionButton from 'react-native-action-button';
 import { LogBox } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -54,10 +55,12 @@ export default function HomeScreen(props) {
     db.ref('/notes').once('value', querySnapShot => {
       var noteData = querySnapShot.val() ? querySnapShot.val() : {};
       for (var key in noteData) {
-        // khắc phục lỗi ghi chú ảnh nhưng không có ảnh
+        // khắc phục lỗi ghi chú ảnh nhưng không có ảnh/ ghi chú bảng không có bảng (firebase không lưu mảng rỗng)
         let tmp = noteData[key];
         if (tmp.typeNote == "image" && !tmp.image) {
           tmp.image = [];
+        } else if (tmp.typeNote == "table" && !tmp.table) {
+          tmp.table = [];
         }
         //noteItem.unshift({ ...noteData[key] });
         noteItem.unshift({ ...tmp });
@@ -158,6 +161,20 @@ export default function HomeScreen(props) {
                     title={i.title}
                     content={i.content}
                     image={i.image}
+                    navigation={props.navigation}
+                  />
+                )
+              } else if (i.typeNote == "table") {
+                return (
+                  <NoteTableItem
+                    key={k}
+                    id={i.key}
+                    date={i.date}
+                    title={i.title}
+                    content={i.content}
+                    row={i.row}
+                    col={i.col}
+                    table={i.table}
                     navigation={props.navigation}
                   />
                 )

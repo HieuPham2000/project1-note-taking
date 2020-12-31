@@ -12,15 +12,14 @@ import { ActivityIndicator,
    Dimensions,
   ScrollView,
   TextInput } from 'react-native';
-import { app } from '../config'
 import * as COLOR from '../theme/color'
-import { MaterialIcons, FontAwesome5, Entypo} from '@expo/vector-icons';
+import { MaterialIcons, Entypo} from '@expo/vector-icons';
 import { uploadImageAsync} from '../utils/uploadImage'
-import { shareImage, copyToClipboard } from '../utils/shareImage'
-import RenderImage from '../components/MyImage'
+import RenderImage from '../components/MyImage';
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as type from '../redux/actiontypes'
+import * as type from '../redux/actiontypes';
+import { compareImages } from "../utils/compare"
 
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
@@ -48,7 +47,12 @@ export default function App({navigation, route}) {
 
   useEffect(() => {
     if(route.params!==undefined) {
-      dispatch({type: type.INIT_IMAGES, payload: route.params.imageNote});
+      let tmp = []
+      let len = route.params.imageNote.length;
+      for(let i = 0; i < len; i++) {
+        tmp.push({...route.params.imageNote[i]})
+      }
+      dispatch({type: type.INIT_IMAGES, payload: tmp});
     } else {
       dispatch({type: type.INIT_IMAGES, payload: []})
     }
@@ -107,9 +111,9 @@ export default function App({navigation, route}) {
     if(id===-1) {
       saveImageNote();
       Alert.alert('Thông báo','Tạo ghi chú thành công!');
-    } else if (title !== titleNote || content != contentNote || image != imageNote) {
+    } else if (title !== titleNote || content != contentNote || !compareImages(image, imageNote)) {
       Alert.alert(
-        'Cập nhật ghi chú',
+        'Cập nhật',
         'Bạn muốn cập nhật ghi chú hiện tại?',
         [
           {
@@ -140,7 +144,7 @@ export default function App({navigation, route}) {
         ],
         { cancelable: false }
       );
-    } else if (title !== titleNote || content != contentNote || image != imageNote ) {
+    } else if (title !== titleNote || content != contentNote || !compareImages(image, imageNote) ) {
       Alert.alert(
         'Chú ý',
         'Thay đổi chưa được lưu! Bạn có muốn lưu thay đổi? ',
@@ -149,7 +153,7 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Không lưu', onPress: () => notUpdateImageNote() },
+          { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
           { text: 'Lưu', onPress: () => updateImageNote() }
         ],
         { cancelable: false }

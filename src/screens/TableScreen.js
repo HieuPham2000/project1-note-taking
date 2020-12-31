@@ -1,114 +1,54 @@
-import React, { useState, Component, useEffect } from "react";
-import { Button, StyleSheet, TextInput, View, TouchableOpacity, ScrollView} from "react-native";
+import React, { useState, Component, useEffect, useRef } from "react";
+import { Dimensions, StyleSheet, TextInput, View, TouchableHighlight, ScrollView, Text, Alert} from "react-native";
 import Dialog from "react-native-dialog";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as COLOR from "../theme/color"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import MyTable from '../components/MyTable';
+import * as type from '../redux/actiontypes';
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import { compareTable } from "../utils/compare"
 
-function Table(props) {
-  const [row, setRow] = useState(0);
-  const [col, setCol] = useState(0);
-  const [tableData, setTableData] = useState([]);
-  const [widthCell, setWidthCell] = useState([]);
-  
-  useEffect(() => {
-    let numberOfRow = props.numberOfRow;
-    let numberOfCol = props.numberOfCol;
-    if(row!=numberOfRow || col!=numberOfCol) {
-      let tmp = new Array(numberOfRow);
-      for(var i = 0; i < numberOfRow; i++) {
-        tmp[i] = new Array(numberOfCol);
-        tmp[i].fill("");
-      }
-      let w = new Array(numberOfCol);
-      w.fill(100);
-
-      setRow(numberOfRow);
-      setCol(numberOfCol);
-      setTableData([...tmp]);
-      setWidthCell([...w]);
-    }
-  })
-
- 
-  const handleChangeText = (r, c, text) => {
-    let tmp = [...tableData];
-    tmp[r][c] = text;
-    setTableData([...tmp])
-    /* if(text.length== 10) {
-      let w = [...widthCell];
-      w[c] = 200;
-      setWidthCell([...w])
-    } */
-  }
-  
-
-  const renderCell = (r, c) => {
-    if(tableData.length > 0 && widthCell.length > 0) {
-    return (
-      <View 
-      key = {c} 
-      style={{ flex: 1, borderWidth:1, alignSelf:'stretch',width: widthCell[c], minWidth: 100}}>
-          <TextInput 
-          value={tableData[r][c]} 
-          onChangeText={(text) => handleChangeText(r, c, text)}
-          /* onContentSizeChange={(event) => {
-            if (event && event.nativeEvent && event.nativeEvent.contentSize) {
-              let w = [...widthCell];
-              w[c] = event.nativeEvent.contentSize.width;
-              console.log(w[c]);
-              setWidthCell([...w])
-            }
-            //props.onContentSizeChange && this.props.onContentSizeChange(event)
-            }} */
-            
-          multiline={true}
-          style={{margin: 5, fontSize: 16}}
-          />
-      </View>
-    )
-  }
-  }
-
-  const renderRow = (r) => {
-    const data = new Array(props.numberOfCol);
-    data.fill(10);
-    return (
-      <View key={r} style={{ flex: 1, alignSelf:'stretch', flexDirection: 'row',}}>
-        {data.map((i, c) => {
-          return renderCell(r, c)
-        })}
-      </View>
-    );
-  }
-
-  const data = new Array(props.numberOfRow);
-  data.fill(10);
-  return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', margin: 20 }}>
-        {data.map((i, r) => {
-          return renderRow(r)
-        })}
-      </View>
-    
-  )
-}
+const W = Dimensions.get("window").width;
+const H = Dimensions.get("window").height;
 export default function App({navigation, route}) {
   const [visible, setVisible] = useState(false);
-  const [column, setColumn] = useState("");
-  const [row, setRow] = useState("");
-  const [numberOfCol, setNumberOfCol] = useState(0);
-  const [numberOfRow, setNumberOfRow] = useState(0);
+  const tableData = useSelector((state) => state.table);
 
   const idNote = route.params===undefined? -1 : route.params.idNote;
   const titleNote = route.params===undefined? '' : route.params.titleNote;
   const contentNote = route.params===undefined? '' : route.params.contentNote;
-  const imageNote = route.params===undefined? [] : route.params.imageNote;
+  const numberOfCol = route.params===undefined? "" : route.params.numberOfCol;
+  const numberOfRow = route.params===undefined? "" : route.params.numberOfRow;
 
   const [id, setId] = useState(idNote);
   const [title, setTitle] = useState(titleNote);
   const [content, setContent] = useState(contentNote);
+  const [column, setColumn] = useState(numberOfCol);
+  const [row, setRow] = useState(numberOfRow);
+/*   const [numColumn, setNumColumn] = useState(0);
+  const [numRow, setNumRow] = useState(0); */
   const dispatch = useDispatch();
+
+  const menuDelete = useRef();
+  const hideMenuDelete = () => menuDelete.current.hide();
+  const showMenuDelete = () => menuDelete.current.show();
+  const menuModify = useRef();
+  const hideMenuModify = () => menuModify.current.hide();
+  const showMenuModify = () => menuModify.current.show();
+
+  useEffect(() => {
+    if(route.params!==undefined) {
+      let tmp = [];
+      let len = route.params.tableNote.length;
+      for(let i = 0; i < len; i++) {
+        tmp.push([...route.params.tableNote[i]])
+      }
+      dispatch({type: type.INIT_TABLE, payload: tmp});
+    } else {
+      dispatch({type: type.INIT_TABLE, payload: []})
+    }
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -143,35 +83,32 @@ export default function App({navigation, route}) {
     setContent(text);
   }
 
-  const saveImageNote = () => {
-    dispatch({type: type.NEW_IMAGE_NOTE, payload: {title: title, content: content, image: image} })
+  const saveTableNote = () => {
+    dispatch({type: type.NEW_TABLE_NOTE, payload: {title: title, content: content, table: tableData, col: Number(column), row: Number(row)} })
     navigation.navigate('HomeScreen');
   }
 
-  const updateImageNote = () => {
-    dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: image} })
-    navigation.navigate('HomeScreen');
-  }
-
-  const notUpdateImageNote = () => {
-    //dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: imageNote} })
+  const updateTableNote = () => {
+    dispatch({type: type.UPDATE_TABLE_NOTE, payload: {id: id, title: title, content: content, table: tableData, col: Number(column), row: Number(row)} })
     navigation.navigate('HomeScreen');
   }
 
   const confirm = () => {
+    console.log(tableData);
+    console.log(route.params.tableNote);
     if(id===-1) {
-      saveImageNote();
+      saveTableNote();
       Alert.alert('Thông báo','Tạo ghi chú thành công!');
-    } else if (title !== titleNote || content != contentNote || image != imageNote) {
+    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote) ) {
       Alert.alert(
-        'Cập nhật ghi chú',
+        'Cập nhật',
         'Bạn muốn cập nhật ghi chú hiện tại?',
         [
           {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Cập nhật', onPress: () => updateImageNote() },
+          { text: 'Cập nhật', onPress: () => updateTableNote() },
         ],
         { cancelable: false }
       );
@@ -184,18 +121,18 @@ export default function App({navigation, route}) {
     if(id===-1) {
       Alert.alert(
         'Chú ý',
-        'Bạn chưa lưu ghi chú! Tất cả hình ảnh sẽ bị xóa. Bạn có muốn lưu?',
+        'Bạn chưa lưu ghi chú! Bạn có muốn lưu?',
         [
           {
             text: 'Hủy',
             style: 'cancel',
           },
           { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
-          { text: 'Lưu', onPress: () => saveImageNote() }
+          { text: 'Lưu', onPress: () => saveTableNote() }
         ],
         { cancelable: false }
       );
-    } else if (title !== titleNote || content != contentNote || image != imageNote ) {
+    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote) ) {
       Alert.alert(
         'Chú ý',
         'Thay đổi chưa được lưu! Bạn có muốn lưu thay đổi? ',
@@ -204,8 +141,8 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Không lưu', onPress: () => notUpdateImageNote() },
-          { text: 'Lưu', onPress: () => updateImageNote() }
+          { text: 'Không lưu', onPress: () => navigation.navigate("HomeScreen") },
+          { text: 'Lưu', onPress: () => updateTableNote() }
         ],
         { cancelable: false }
       );
@@ -219,24 +156,46 @@ export default function App({navigation, route}) {
   const showDialog = () => {
     setRow("");
     setColumn("");
-    setNumberOfRow(0);
-    setNumberOfCol(0);
+    /* setNumberOfRow(0);
+    setNumberOfCol(0); */
     setVisible(true);
   };
 
   const handleCancel = () => {
+    setRow("");
+    setColumn("");
     setVisible(false);
   };
 
   const handleConfirm = () => {
-    setNumberOfRow(Number(row));
-    setNumberOfCol(Number(column));
+    //console.log(`row: ${row} & col: ${column}`);
+    /* setNumColumn(Number(column));
+    setNumRow(Number(row));
+    setRow("");
+    setColumn("");
+    console.log(`row: ${numRow} & col: ${numColumn}`); */
+    dispatch({type: type.ADD_TABLE, payload:{row: Number(row), col: Number(column)}})
     setVisible(false);
   };
+
+  const deleteTable = () => {
+    dispatch({type: type.DELETE_TABLE});
+    setColumn("");
+    setRow("");
+  }
+
+  const deleteDataInTable = () => {
+    dispatch({type: type.DELETE_DATA_IN_TABLE});
+  }
 
 
   return (
     <View style={styles.container}>
+      {/* ********************
+      **                    **
+      **   Title, Content   **
+      **                    **
+      ************************ */}
        <ScrollView>
         <View style={styles.titleWrapper}>
           <TextInput
@@ -260,32 +219,102 @@ export default function App({navigation, route}) {
             value={content}
           />
         </View>
+      {/* ********************
+      **                    **
+      ** Show Dialog Button **
+      **                    **
+      ************************ */}
+        {(column=="" || row=="") && <TouchableHighlight
+          style={styles.tableButton}
+          onPress={showDialog}>
+          <Text style={styles.textTableButton}>Tạo bảng</Text>
+        </TouchableHighlight>}
 
-        <TouchableOpacity style={{ flex:3, alignItems: 'center', justifyContent:'space-around' }}>
-          <AntDesign style={{}} name="table" size={60} color={"black"} onPress={() => showDialog()} />
-        </TouchableOpacity>
-        <View style={{ flex:5}}>
+      {/* ******************************
+      **                              **
+      **   Button Del, Modify Table   **
+      **                              **
+      ********************************** */}
+        {(column!="" && row!="")
+          && 
+          <View style={{ flexDirection:"row", justifyContent:"space-around"}}>
+            <TouchableHighlight
+              style={{ ...styles.tableButton, /* backgroundColor: COLOR.COLOR3  */}}
+              onPress={showMenuModify}>
+              <Text style={styles.textTableButton}>Chỉnh sửa </Text>
+            </TouchableHighlight>
+            <TouchableHighlight
+              style={{ ...styles.tableButton, backgroundColor: COLOR.COLOR5, borderColor: COLOR.COLOR1, borderWidth: 0.5}}
+              onPress={showMenuDelete}>
+              <Text style={{...styles.textTableButton, color: COLOR.COLOR1}}>Xóa</Text>
+            </TouchableHighlight>
+            </View>
+        }
+
+      {/* ******************************
+      **                              **
+      **   Menu Delete                **
+      **                              **
+      ********************************** */}
+      <View style={{ width: 0.6 * W, position: 'absolute', right: 0, top: 0}}>
+        <Menu ref={menuDelete} style={{ width: 0.6 * W, position: 'absolute', right: 0}}>
+          <MenuDivider />
+          <MenuItem
+            onPress={() => { hideMenuDelete(); deleteTable() }}
+            disabled={false}>Xóa bảng</MenuItem>
+          <MenuItem
+            onPress={() => { hideMenuDelete(); deleteDataInTable()}}
+            disabled={false}>Xóa toàn bộ dữ liệu</MenuItem>
+          <MenuItem
+            onPress={() => { hideMenuDelete(); }}
+            disabled={false}>Xóa cột</MenuItem>
+          <MenuItem
+            onPress={() => { hideMenuDelete(); }}
+            disabled={false}>Xóa hàng</MenuItem>
+        </Menu>
+        </View>
+      {/* ******************************
+      **                              **
+      **   Menu Modify                **
+      **                              **
+      ********************************** */}
+      <View style={{ width: 0.6 * W, position: 'absolute', left: 0, top: 0}}>
+        <Menu ref={menuModify} style={{ width: 0.6 * W }}>
+          <MenuDivider />
+          <MenuItem
+            onPress={() => { hideMenuModify(); }}
+            disabled={false}>Thêm cột</MenuItem>
+          <MenuItem
+            onPress={() => { hideMenuModify(); }}
+            disabled={false}>Thêm hàng</MenuItem>
+        </Menu>
+      </View>
+
+      {/* ******************************
+      **                              **
+      **   Bảng                       **
+      **                              **
+      ********************************** */}
+        {/* column!="" && row!="" && */
+        <View style={{ flex:5, marginBottom: 50}}>
           <ScrollView>
             <ScrollView horizontal={true}>
-              <Table numberOfCol={numberOfCol} numberOfRow={numberOfRow} />
+              <MyTable 
+                col={Number(column)} 
+                row={Number(row)} 
+              />
             </ScrollView>
           </ScrollView>
-        </View>
+        </View>}
       </ScrollView>
-{/* 
-      <View style={{flex:1}}>
-        <TouchableOpacity style={{ flex:3, alignItems: 'center', justifyContent:'space-around' }}>
-          <AntDesign style={{}} name="table" size={60} color={"black"} onPress={() => showDialog()} />
-        </TouchableOpacity>
-        <View style={{ flex:5}}>
-          <ScrollView>
-            <ScrollView horizontal={true}>
-              <Table numberOfCol={numberOfCol} numberOfRow={numberOfRow} />
-            </ScrollView>
-          </ScrollView>
-        </View>
-      </View> */}
 
+
+
+      {/* ******************************
+      **                              **
+      **   Dialog tạo bảng            **
+      **                              **
+      ********************************** */}
       <Dialog.Container visible={visible}>
         <Dialog.Title style={styles.title}>Tạo bảng</Dialog.Title>
         {
@@ -318,18 +347,14 @@ export default function App({navigation, route}) {
           &&
           <View>
             <Dialog.Description style={styles.done} children={`Tạo bảng ${row}x${column}.`} />
-            {/* <Dialog.Description
-              style={styles.doing}
-              children={`Chú ý: Bạn không thể thay đổi kích thước bảng sau khi tạo!`}
-            /> */}
           </View>
 
         }
 
-        <Dialog.Button label="Hủy" onPress={() => handleCancel()} />
+        <Dialog.Button label="Hủy" onPress={handleCancel} />
         <Dialog.Button
           label="Xác nhận"
-          onPress={() => handleConfirm()}
+          onPress={handleConfirm}
           disabled={(!row) || (!column)}
           style={{ opacity: (row && column) ? 1 : 0.3 }}
         />
@@ -401,4 +426,20 @@ const styles = StyleSheet.create({
     color: COLOR.COLOR_HEADER_TEXT,
     paddingHorizontal: 15,
   },
+  tableButton: {
+    width: 0.3*W,
+    alignSelf:"center",
+    backgroundColor: COLOR.COLOR1,
+    /* borderColor: COLOR.COLOR2,
+    borderWidth: 0.5, */
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  textTableButton: {
+    color: COLOR.COLOR5, 
+    fontWeight: 'bold', 
+    textAlign: 'center',
+    fontSize: 16,
+  }
 });
