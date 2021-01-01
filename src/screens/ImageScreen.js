@@ -19,7 +19,8 @@ import RenderImage from '../components/MyImage';
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as type from '../redux/actiontypes';
-import { compareImages } from "../utils/compare"
+import { compareImages } from "../utils/compare";
+import { useKeyboardStatus } from "../utils/useKeyboardStatus"
 
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
@@ -37,6 +38,9 @@ export default function App({navigation, route}) {
   const [uploading, setUploading] = useState(false);
   const scrollViewRef = useRef();
   const dispatch = useDispatch();
+
+  // test useKeyboardStatus
+  const isOpenKeyboard = useKeyboardStatus();
 
   useEffect(() => {
     (async () => {
@@ -98,12 +102,12 @@ export default function App({navigation, route}) {
   }
 
   const updateImageNote = () => {
-    dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: image} })
+    dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: image, oldImages: imageNote} })
     navigation.navigate('HomeScreen');
   }
 
   const notUpdateImageNote = () => {
-    //dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: imageNote} })
+    dispatch({type: type.NOT_UPDATE_IMAGE_NOTE, payload: {oldImages: imageNote, newImages: image} })
     navigation.navigate('HomeScreen');
   }
 
@@ -153,7 +157,7 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
+          { text: 'Không lưu', onPress: () => notUpdateImageNote() },
           { text: 'Lưu', onPress: () => updateImageNote() }
         ],
         { cancelable: false }
@@ -276,7 +280,7 @@ export default function App({navigation, route}) {
         )}
       </ScrollView>
 
-      
+      {/* !isOpenKeyboard && */
       <View style={styles.buttonUpImageBar}>
           <Entypo name="camera" size={28} color={COLOR.COLOR2} 
             onPress={() => takePhoto(-1)}
@@ -284,7 +288,7 @@ export default function App({navigation, route}) {
           <Entypo name="folder-images" size={28} color={COLOR.COLOR2} 
             onPress={() => pickImageFromLibrary(-1)}
           />
-      </View>
+      </View>}
       {renderUploadingOverlay()}
 
       <StatusBar barStyle="default" />

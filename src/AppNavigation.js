@@ -153,7 +153,7 @@ function NoteStack() {
           name="NoteScreen" 
           component={NoteScreen}
           options={ ({ navigation }) => ({ 
-            title: 'Ghi chú mới', 
+            title: 'Ghi chú văn bản', 
             headerRight: () => (
               <View>
                 <MaterialIcons

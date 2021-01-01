@@ -89,7 +89,17 @@ const noteReducer = (state = [], action) => {
       // firebase
       db.ref('/notes').child(action.payload.id).remove();
       // remove
-      //let removeImages = action.payload.oldImages.filter((i) => !action.payload.image.include(i));
+      let oldImages = action.payload.oldImages;
+      let newImages = action.payload.image;
+        // kiểm tra object thì sẽ không bao giờ trùng nhau, nên nó luôn false???
+        // let tmp = newImages.filter(i => !oldImages.includes(i)); 
+        // giải pháp
+      let oldImagesName = oldImages.map(i => i.name);
+      let newImagesName = newImages.map(i => i.name);
+      let tmp = oldImagesName.filter( name => !newImagesName.includes(name));
+      tmp.map((name) => {
+        app.storage().ref().child(name).delete();
+      })
       // add new note
       myRef = db.ref("/notes").push();
       key = myRef.key;
@@ -106,6 +116,20 @@ const noteReducer = (state = [], action) => {
       // local
       newState.splice(index, 1);
       return [newImageNote, ...newState];
+
+      case type.NOT_UPDATE_IMAGE_NOTE:
+        oldImages = action.payload.oldImages;
+        newImages = action.payload.newImages;
+        // kiểm tra object thì sẽ không bao giờ trùng nhau, nên nó luôn false???
+        /* let tmp = newImages.filter(i => !oldImages.includes(i)); */
+        // giải pháp
+        oldImagesName = oldImages.map(i => i.name);
+        newImagesName = newImages.map(i => i.name);
+        tmp = newImagesName.filter( name => !oldImagesName.includes(name));
+        tmp.map((name) => {
+          app.storage().ref().child(name).delete();
+        })
+        return state;
 
 
 
