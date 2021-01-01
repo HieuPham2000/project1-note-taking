@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Image } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { db } from '../config';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Modal, TouchableOpacity } from 'react-native';
+import { MaterialIcons, AntDesign, Entypo } from '@expo/vector-icons';
 import { convertDate, convertString } from '../utils/convert';
 import * as COLOR from '../theme/color';
-import { TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as type from '../redux/actiontypes'
 import { useState } from 'react';
@@ -15,6 +13,8 @@ const H = Dimensions.get('window').height;
 
 export default function NoteImageItem({ id, date, title, content, row, col, table, navigation }) {
   const dispatch = useDispatch();
+  const [modalVisible, setModalVisible] = useState(false);
+
   const deleteNote = () => {
     Alert.alert(
       'Xóa ghi chú',
@@ -38,10 +38,52 @@ export default function NoteImageItem({ id, date, title, content, row, col, tabl
     navigation.navigate('TableScreen', { idNote: id, 
       titleNote: title, contentNote: content, tableNote: table, numberOfRow: row, numberOfCol: col });
   }
+
+  const shareNote = () => {
+    Share.share({
+      message: `${convertDate(date)}\n${title}\n${content}`,
+      title: `Ghi chú`,
+    });
+  };
   
   return (
     <View style={styles.noteItem} >
-      <TouchableWithoutFeedback onLongPress={deleteNote} onPress={editNote}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={()=>setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <AntDesign 
+              name="close" 
+              size={30} 
+              color={COLOR.COLOR6} 
+              style={{alignSelf:'flex-end', opacity: 0.6}} 
+              onPress={() => setModalVisible(false)} 
+            />
+            <TouchableOpacity  
+              onPress={() => {shareNote(); setModalVisible(false)}} 
+              style={styles.modalOption}
+            >
+              <Entypo name="share" size={30} color={COLOR.COLOR2}  />
+              <Text style={styles.modalOptionText}>Chia sẻ ghi chú</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity  
+              onPress={() => {deleteNote(); setModalVisible(false)}} 
+              style={styles.modalOption}
+            >
+              <MaterialIcons name="delete" size={30} color={COLOR.COLOR2} />
+              <Text style={styles.modalOptionText}>Xóa ghi chú</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+      <TouchableWithoutFeedback onLongPress={() => setModalVisible(true)} onPress={editNote}>
         <View>
           <Text style={styles.itemDate}>{convertDate(date)}</Text>
           {title !== "" && <Text style={styles.itemTitle}>{convertString(title)}</Text>}
@@ -94,5 +136,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingHorizontal: 10,
     color: COLOR.COLOR2,
-  }
+  },
+// Modal
+modalOption: {
+  flexDirection: 'row',
+  marginBottom: 20,
+  opacity: 1,
+},
+modalOptionText: {
+  textAlignVertical: 'center',
+  fontSize: 18,
+  color: COLOR.COLOR2,
+  marginLeft: 30
+},
+centeredView: {
+  flex: 1,
+  justifyContent: 'center',
+},
+modalView: {
+  margin: 20,
+  backgroundColor: COLOR.COLOR_BACKGROUND,
+  borderRadius: 5,
+  padding: 20,
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+},
 })
