@@ -1,5 +1,5 @@
 import React, { useState, Component, useEffect, useRef } from "react";
-import { Dimensions, StyleSheet, TextInput, View, TouchableHighlight, ScrollView, Text, Alert} from "react-native";
+import { Dimensions, StyleSheet, TextInput, View, TouchableHighlight, ScrollView, Text, Alert } from "react-native";
 import Dialog from "react-native-dialog";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as COLOR from "../theme/color"
@@ -7,27 +7,28 @@ import { useDispatch, useSelector } from "react-redux";
 import MyTable from '../components/MyTable';
 import * as type from '../redux/actiontypes';
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-import { compareTable } from "../utils/compare"
+import { compareTable } from "../utils/compare";
+import DialogTable from "../components/DialogTable";
 
 const W = Dimensions.get("window").width;
 const H = Dimensions.get("window").height;
-export default function App({navigation, route}) {
+export default function App({ navigation, route }) {
   const [visible, setVisible] = useState(false);
   const tableData = useSelector((state) => state.table);
 
-  const idNote = route.params===undefined? -1 : route.params.idNote;
-  const titleNote = route.params===undefined? '' : route.params.titleNote;
-  const contentNote = route.params===undefined? '' : route.params.contentNote;
-  const numberOfCol = route.params===undefined? "" : route.params.numberOfCol;
-  const numberOfRow = route.params===undefined? "" : route.params.numberOfRow;
+  const idNote = route.params === undefined ? -1 : route.params.idNote;
+  const titleNote = route.params === undefined ? '' : route.params.titleNote;
+  const contentNote = route.params === undefined ? '' : route.params.contentNote;
+  const numberOfCol = route.params === undefined ? "" : route.params.numberOfCol;
+  const numberOfRow = route.params === undefined ? "" : route.params.numberOfRow;
 
   const [id, setId] = useState(idNote);
   const [title, setTitle] = useState(titleNote);
   const [content, setContent] = useState(contentNote);
   const [column, setColumn] = useState(numberOfCol);
   const [row, setRow] = useState(numberOfRow);
-/*   const [numColumn, setNumColumn] = useState(0);
-  const [numRow, setNumRow] = useState(0); */
+  /*   const [numColumn, setNumColumn] = useState(0);
+    const [numRow, setNumRow] = useState(0); */
   const dispatch = useDispatch();
 
   const menuDelete = useRef();
@@ -37,16 +38,20 @@ export default function App({navigation, route}) {
   const hideMenuModify = () => menuModify.current.hide();
   const showMenuModify = () => menuModify.current.show();
 
+  // test dialog delete, modify table
+  const [visibleDialogTable, setVisibleDialogTable] = useState(false);
+  const [TYPE, setTYPE] = useState("");
+
   useEffect(() => {
-    if(route.params!==undefined) {
+    if (route.params !== undefined) {
       let tmp = [];
       let len = route.params.tableNote.length;
-      for(let i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         tmp.push([...route.params.tableNote[i]])
       }
-      dispatch({type: type.INIT_TABLE, payload: tmp});
+      dispatch({ type: type.INIT_TABLE, payload: tmp });
     } else {
-      dispatch({type: type.INIT_TABLE, payload: []})
+      dispatch({ type: type.INIT_TABLE, payload: [] })
     }
   }, []);
 
@@ -72,34 +77,35 @@ export default function App({navigation, route}) {
           />
         </View>
       )
-    })})
+    })
+  })
 
 
-  const handleChangeTitle = (text)  => {
+  const handleChangeTitle = (text) => {
     setTitle(text);
   }
 
-  const handleChangeContent = (text) =>  {
+  const handleChangeContent = (text) => {
     setContent(text);
   }
 
   const saveTableNote = () => {
-    dispatch({type: type.NEW_TABLE_NOTE, payload: {title: title, content: content, table: tableData, col: Number(column), row: Number(row)} })
+    dispatch({ type: type.NEW_TABLE_NOTE, payload: { title: title, content: content, table: tableData, col: Number(column), row: Number(row) } })
     navigation.navigate('HomeScreen');
   }
 
   const updateTableNote = () => {
-    dispatch({type: type.UPDATE_TABLE_NOTE, payload: {id: id, title: title, content: content, table: tableData, col: Number(column), row: Number(row)} })
+    dispatch({ type: type.UPDATE_TABLE_NOTE, payload: { id: id, title: title, content: content, table: tableData, col: Number(column), row: Number(row) } })
     navigation.navigate('HomeScreen');
   }
 
   const confirm = () => {
     console.log(tableData);
     console.log(route.params.tableNote);
-    if(id===-1) {
+    if (id === -1) {
       saveTableNote();
-      Alert.alert('Thông báo','Tạo ghi chú thành công!');
-    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote) ) {
+      Alert.alert('Thông báo', 'Tạo ghi chú thành công!');
+    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote)) {
       Alert.alert(
         'Cập nhật',
         'Bạn muốn cập nhật ghi chú hiện tại?',
@@ -118,7 +124,7 @@ export default function App({navigation, route}) {
   }
 
   const goBack = () => {
-    if(id===-1) {
+    if (id === -1) {
       Alert.alert(
         'Chú ý',
         'Bạn chưa lưu ghi chú! Bạn có muốn lưu?',
@@ -132,7 +138,7 @@ export default function App({navigation, route}) {
         ],
         { cancelable: false }
       );
-    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote) ) {
+    } else if (title !== titleNote || content != contentNote || !compareTable(tableData, route.params.tableNote)) {
       Alert.alert(
         'Chú ý',
         'Thay đổi chưa được lưu! Bạn có muốn lưu thay đổi? ',
@@ -174,18 +180,18 @@ export default function App({navigation, route}) {
     setRow("");
     setColumn("");
     console.log(`row: ${numRow} & col: ${numColumn}`); */
-    dispatch({type: type.ADD_TABLE, payload:{row: Number(row), col: Number(column)}})
+    dispatch({ type: type.ADD_TABLE, payload: { row: Number(row), col: Number(column) } })
     setVisible(false);
   };
 
   const deleteTable = () => {
-    dispatch({type: type.DELETE_TABLE});
+    dispatch({ type: type.DELETE_TABLE });
     setColumn("");
     setRow("");
   }
 
   const deleteDataInTable = () => {
-    dispatch({type: type.DELETE_DATA_IN_TABLE});
+    dispatch({ type: type.DELETE_DATA_IN_TABLE });
   }
 
 
@@ -196,7 +202,7 @@ export default function App({navigation, route}) {
       **   Title, Content   **
       **                    **
       ************************ */}
-       <ScrollView>
+      <ScrollView>
         <View style={styles.titleWrapper}>
           <TextInput
             style={styles.title}
@@ -219,93 +225,141 @@ export default function App({navigation, route}) {
             value={content}
           />
         </View>
-      {/* ********************
+        {/* ********************
       **                    **
       ** Show Dialog Button **
       **                    **
       ************************ */}
-        {(column=="" || row=="") && <TouchableHighlight
+        {(column == "" || row == "") && <TouchableHighlight
           style={styles.tableButton}
           onPress={showDialog}>
           <Text style={styles.textTableButton}>Tạo bảng</Text>
         </TouchableHighlight>}
 
-      {/* ******************************
+        {/* ******************************
       **                              **
       **   Button Del, Modify Table   **
       **                              **
       ********************************** */}
-        {(column!="" && row!="")
-          && 
-          <View style={{ flexDirection:"row", justifyContent:"space-around"}}>
+        {(column != "" && row != "")
+          &&
+          <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
             <TouchableHighlight
-              style={{ ...styles.tableButton, /* backgroundColor: COLOR.COLOR3  */}}
+              style={{ ...styles.tableButton, /* backgroundColor: COLOR.COLOR3  */ }}
               onPress={showMenuModify}>
               <Text style={styles.textTableButton}>Chỉnh sửa </Text>
             </TouchableHighlight>
             <TouchableHighlight
-              style={{ ...styles.tableButton, backgroundColor: COLOR.COLOR5, borderColor: COLOR.COLOR1, borderWidth: 0.5}}
+              style={{ ...styles.tableButton, backgroundColor: COLOR.COLOR5, borderColor: COLOR.COLOR1, borderWidth: 0.5 }}
               onPress={showMenuDelete}>
-              <Text style={{...styles.textTableButton, color: COLOR.COLOR1}}>Xóa</Text>
+              <Text style={{ ...styles.textTableButton, color: COLOR.COLOR1 }}>Xóa</Text>
             </TouchableHighlight>
-            </View>
+          </View>
         }
 
-      {/* ******************************
+        {/* ******************************
       **                              **
       **   Menu Delete                **
       **                              **
       ********************************** */}
-      <View style={{ width: 0.6 * W, position: 'absolute', right: 0, top: 0}}>
-        <Menu ref={menuDelete} style={{ width: 0.6 * W, position: 'absolute', right: 0}}>
-          <MenuDivider />
-          <MenuItem
-            onPress={() => { hideMenuDelete(); deleteTable() }}
-            disabled={false}>Xóa bảng</MenuItem>
-          <MenuItem
-            onPress={() => { hideMenuDelete(); deleteDataInTable()}}
-            disabled={false}>Xóa toàn bộ dữ liệu</MenuItem>
-          <MenuItem
-            onPress={() => { hideMenuDelete(); }}
-            disabled={false}>Xóa cột</MenuItem>
-          <MenuItem
-            onPress={() => { hideMenuDelete(); }}
-            disabled={false}>Xóa hàng</MenuItem>
-        </Menu>
+        <View style={{ width: 0.6 * W, position: 'absolute', right: 0, top: 0 }}>
+          <Menu ref={menuDelete} style={{ width: 0.6 * W, position: 'absolute', right: 0 }}>
+            <MenuDivider />
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                deleteTable() 
+              }}
+              disabled={false}>Xóa bảng</MenuItem>
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                setVisibleDialogTable(true); 
+                setTYPE(type.DELETE_COLUMN);
+                setColumn(String(Number(column) - 1)); 
+              }}
+              disabled={false}>Xóa cột</MenuItem>
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                setVisibleDialogTable(true); 
+                setTYPE(type.DELETE_ROW);
+                setRow(String(Number(row) - 1));
+              }}
+              disabled={false}>Xóa hàng</MenuItem>
+            <MenuDivider />
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                deleteDataInTable() 
+              }}
+              disabled={false}>Xóa toàn bộ dữ liệu</MenuItem>
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                setVisibleDialogTable(true); 
+                setTYPE(type.DELETE_DATA_IN_COLUMN);
+              }}
+              disabled={false}>Xóa dữ liệu trên cột</MenuItem>
+            <MenuItem
+              onPress={() => { 
+                hideMenuDelete(); 
+                setVisibleDialogTable(true); 
+                setTYPE(type.DELETE_DATA_IN_ROW);
+              }}
+              disabled={false}>Xóa dữ liệu trên hàng</MenuItem>
+          </Menu>
         </View>
-      {/* ******************************
+        {/* ******************************
       **                              **
       **   Menu Modify                **
       **                              **
       ********************************** */}
-      <View style={{ width: 0.6 * W, position: 'absolute', left: 0, top: 0}}>
-        <Menu ref={menuModify} style={{ width: 0.6 * W }}>
-          <MenuDivider />
-          <MenuItem
-            onPress={() => { hideMenuModify(); }}
-            disabled={false}>Thêm cột</MenuItem>
-          <MenuItem
-            onPress={() => { hideMenuModify(); }}
-            disabled={false}>Thêm hàng</MenuItem>
-        </Menu>
-      </View>
+        <View style={{ width: 0.6 * W, position: 'absolute', left: 0, top: 0 }}>
+          <Menu ref={menuModify} style={{ width: 0.6 * W }}>
+            <MenuDivider />
+            <MenuItem
+              onPress={() => { 
+                hideMenuModify();
+                setVisibleDialogTable(true); 
+                setTYPE(type.ADD_COLUMN); 
+                setColumn(String(Number(column) + 1));
+              }}
+              disabled={false}>Chèn thêm cột</MenuItem>
+            <MenuItem
+              onPress={() => { 
+                hideMenuModify();
+                setVisibleDialogTable(true); 
+                setTYPE(type.ADD_ROW); 
+                setRow(String(Number(row) + 1));
+              }}
+              disabled={false}>Chèn thêm hàng</MenuItem>
+          </Menu>
+        </View>
 
       {/* ******************************
+      **                              **
+      **   Dialog thao tác bảng       **
+      **                              **
+      ********************************** */}
+      <DialogTable visible={visibleDialogTable} setVisible={setVisibleDialogTable} TYPE={TYPE} />
+
+        {/* ******************************
       **                              **
       **   Bảng                       **
       **                              **
       ********************************** */}
         {/* column!="" && row!="" && */
-        <View style={{ flex:5, marginBottom: 50}}>
-          <ScrollView>
-            <ScrollView horizontal={true}>
-              <MyTable 
-                col={Number(column)} 
-                row={Number(row)} 
-              />
+          <View style={{ flex: 5, marginBottom: 50 }}>
+            <ScrollView>
+              <ScrollView horizontal={true}>
+                <MyTable
+                  col={Number(column)}
+                  row={Number(row)}
+                />
+              </ScrollView>
             </ScrollView>
-          </ScrollView>
-        </View>}
+          </View>}
       </ScrollView>
 
 
@@ -316,7 +370,7 @@ export default function App({navigation, route}) {
       **                              **
       ********************************** */}
       <Dialog.Container visible={visible}>
-        <Dialog.Title style={styles.title}>Tạo bảng</Dialog.Title>
+        <Dialog.Title style={styles.titleDialog}>Tạo bảng</Dialog.Title>
         {
           (!column || !row) &&
           <Dialog.Description style={{}} children={"Mời bạn nhập kích thước bảng"} />
@@ -327,7 +381,7 @@ export default function App({navigation, route}) {
             label={"Số hàng"}
             placeholder={"Nhập số hàng"}
             onChangeText={(text) => { setRow(text.replace(/[^0-9]/g, '')) }}
-            value={row}
+            value={String(row)}
             style={styles.input}
             keyboardType={"numeric"}
             maxLength={2}
@@ -336,7 +390,7 @@ export default function App({navigation, route}) {
             label="Số cột"
             placeholder={"Nhập số cột"}
             onChangeText={(text) => { setColumn(text.replace(/[^0-9]/g, '')) }}
-            value={column}
+            value={String(column)}
             style={styles.input}
             keyboardType={"numeric"}
             maxLength={2}
@@ -369,7 +423,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
   },
-  title: {
+  titleDialog: {
     fontWeight: '700',
   },
   done: {
@@ -427,8 +481,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   tableButton: {
-    width: 0.3*W,
-    alignSelf:"center",
+    width: 0.3 * W,
+    alignSelf: "center",
     backgroundColor: COLOR.COLOR1,
     /* borderColor: COLOR.COLOR2,
     borderWidth: 0.5, */
@@ -437,8 +491,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   textTableButton: {
-    color: COLOR.COLOR5, 
-    fontWeight: 'bold', 
+    color: COLOR.COLOR5,
+    fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16,
   }

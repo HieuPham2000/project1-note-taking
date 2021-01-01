@@ -49,12 +49,20 @@ const tableReducer = (state = [], action) => {
 
     case type.DELETE_ROW:
       tmp = [];
+      // len khác số row, len = row + 1
       let len = state.length;
       if(action.payload.index <= len) {
         for(let i = 0; i < len; i++) {
           tmp.push([...state[i]]);
         }
         tmp.splice(action.payload.index, 1);
+        // đánh lại giá trị:
+        for(let i = 1; i < len - 1; i++) {
+          tmp[i][0] = i;
+        }
+        // có vẻ không cần thiết
+        tmp[0][0] = "";
+        //
         return tmp;
       }
       return state;
@@ -68,6 +76,8 @@ const tableReducer = (state = [], action) => {
           tmp.push([...state[i]]);
         }
         tmp[action.payload.index].fill("");
+        // chú ý vị trí đầu
+        tmp[action.payload.index][0] = action.payload.index;
         return tmp;
       }
       return state;
@@ -83,6 +93,13 @@ const tableReducer = (state = [], action) => {
           tmp_row.splice(action.payload.index, 1);
           tmp.push([...tmp_row]);
         }
+        // đánh lại giá trị:
+        for(let j = 1; j < numCol - 1; j++) {
+          tmp[0][j] = j;
+        }
+        // có vẻ không cần thiết
+        tmp[0][0] = "";
+        //
         return tmp;
       }
       return state;
@@ -95,7 +112,10 @@ const tableReducer = (state = [], action) => {
       if(action.payload.index <= numCol) {
         for(let i = 0; i < len; i++) {
           let tmp_row = [...state[i]];
-          tmp_row[action.payload.index] = "";
+          // chú ý vị trí đầu
+          if(i!=0) {
+            tmp_row[action.payload.index] = "";
+          }
           tmp.push([...tmp_row]);
         }
         return tmp;
@@ -121,6 +141,13 @@ const tableReducer = (state = [], action) => {
       }
       numCol = state[0].length;
       tmp.splice(index, 0, Array(numCol).fill(""));
+      // đánh lại giá trị:
+      for(let i = 1; i < len + 1; i++) {
+        tmp[i][0] = i;
+      }
+      // có vẻ không cần thiết
+      tmp[0][0] = "";
+      //
       return tmp;
 
     case type.ADD_COLUMN:
@@ -139,6 +166,13 @@ const tableReducer = (state = [], action) => {
         tmp_row.splice(action.payload.index, 0, "");
         tmp.push([...tmp_row]);
       }
+      // đánh lại giá trị:
+      for(let j = 1; j < numCol + 1; j++) {
+        tmp[0][j] = j;
+      }
+      // có vẻ không cần thiết
+      tmp[0][0] = "";
+      //
       return tmp;
 
     default:
