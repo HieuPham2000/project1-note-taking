@@ -69,6 +69,13 @@ const noteReducer = (state = [], action) => {
       myRef.set({ ...newImageNote });
       // local
       return [newImageNote, ...state];
+    
+    case type.NOT_SAVE_IMAGE_NOTE:
+      let images = action.payload.images;
+      images.map((i) => {
+        app.storage().ref().child(i.name).delete();
+      })
+      return state;
 
     case type.DELETE_IMAGE_NOTE:
       indexDelete = state.findIndex((note) => note.key === action.payload);

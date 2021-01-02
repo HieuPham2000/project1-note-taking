@@ -196,7 +196,7 @@ export default function HomeScreen(props) {
         style={{ bottom: 50, right: 5 }}
       >
         <ActionButton.Item
-          buttonColor={COLOR.COLOR2}
+          buttonColor={COLOR.COLOR1}
           title="Văn bản"
           size={50}
           onPress={() => props.navigation.navigate("NoteScreen")}>
@@ -217,7 +217,7 @@ export default function HomeScreen(props) {
           />
         </ActionButton.Item>
         <ActionButton.Item
-          buttonColor="#1abc9c"
+          buttonColor={COLOR.COLOR3}
           title="Hình ảnh"
           size={50}
           onPress={() => props.navigation.navigate("ImageScreen")}

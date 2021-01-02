@@ -101,6 +101,11 @@ export default function App({navigation, route}) {
     navigation.navigate('HomeScreen');
   }
 
+  const notSaveImageNote = () => {
+    dispatch({type: type.NOT_SAVE_IMAGE_NOTE, payload: {images: image} })
+    navigation.navigate('HomeScreen');
+  }
+
   const updateImageNote = () => {
     dispatch({type: type.UPDATE_IMAGE_NOTE, payload: {id: id, title: title, content: content, image: image, oldImages: imageNote} })
     navigation.navigate('HomeScreen');
@@ -143,7 +148,7 @@ export default function App({navigation, route}) {
             text: 'Hủy',
             style: 'cancel',
           },
-          { text: 'Không lưu', onPress: () => navigation.navigate('HomeScreen') },
+          { text: 'Không lưu', onPress: () => notSaveImageNote() },
           { text: 'Lưu', onPress: () => saveImageNote() }
         ],
         { cancelable: false }
