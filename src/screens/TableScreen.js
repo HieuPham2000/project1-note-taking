@@ -276,7 +276,7 @@ export default function App({ navigation, route }) {
                 hideMenuDelete(); 
                 setVisibleDialogTable(true); 
                 setTYPE(type.DELETE_COLUMN);
-                setColumn(String(Number(column) - 1)); 
+                //setColumn(String(Number(column) - 1)); 
               }}
               disabled={false}>Xóa cột</MenuItem>
             <MenuItem
@@ -284,7 +284,7 @@ export default function App({ navigation, route }) {
                 hideMenuDelete(); 
                 setVisibleDialogTable(true); 
                 setTYPE(type.DELETE_ROW);
-                setRow(String(Number(row) - 1));
+                //setRow(String(Number(row) - 1));
               }}
               disabled={false}>Xóa hàng</MenuItem>
             <MenuDivider />
@@ -323,7 +323,7 @@ export default function App({ navigation, route }) {
                 hideMenuModify();
                 setVisibleDialogTable(true); 
                 setTYPE(type.ADD_COLUMN); 
-                setColumn(String(Number(column) + 1));
+                //setColumn(String(Number(column) + 1));
               }}
               disabled={false}>Chèn thêm cột</MenuItem>
             <MenuItem
@@ -331,7 +331,7 @@ export default function App({ navigation, route }) {
                 hideMenuModify();
                 setVisibleDialogTable(true); 
                 setTYPE(type.ADD_ROW); 
-                setRow(String(Number(row) + 1));
+                //setRow(String(Number(row) + 1));
               }}
               disabled={false}>Chèn thêm hàng</MenuItem>
           </Menu>
@@ -342,7 +342,15 @@ export default function App({ navigation, route }) {
       **   Dialog thao tác bảng       **
       **                              **
       ********************************** */}
-      <DialogTable visible={visibleDialogTable} setVisible={setVisibleDialogTable} TYPE={TYPE} />
+      <DialogTable 
+        visible={visibleDialogTable} 
+        setVisible={setVisibleDialogTable} 
+        TYPE={TYPE}
+        setColumn={setColumn}
+        setRow={setRow}
+        row={Number(row)}
+        column={Number(column)}
+      />
 
         {/* ******************************
       **                              **

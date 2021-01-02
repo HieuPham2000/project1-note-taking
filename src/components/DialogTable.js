@@ -15,15 +15,15 @@ import {
 import * as COLOR from '../theme/color'
 import Dialog from "react-native-dialog";
 import * as type from "../redux/actiontypes"
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Keyboard } from 'react-native';
 
 
 const W = Dimensions.get('window').width;
 const H = Dimensions.get('window').height;
 
-export default function DialogTable({ TYPE, visible, setVisible }) {
-  //const [visible, setVisible] = useState(false);
+export default function DialogTable({ TYPE, visible, setVisible, setRow, setColumn, row, column }) {
+  //const table = useSelector((state) => state.table);
   const [index, setIndex] = useState("");
   const dispatch = useDispatch();
 
@@ -38,8 +38,19 @@ export default function DialogTable({ TYPE, visible, setVisible }) {
 
   const handleConfirm = () => {
     dispatch({type: TYPE, payload:{index: Number(index)}});
+    /* console.log(row);
+    console.log(column); */
+    switch (TYPE) {
+      case type.DELETE_ROW:
+        setRow(String(row - 1)); break;
+      case type.DELETE_COLUMN:
+        setColumn(String(column - 1)); break;
+      case type.ADD_ROW:
+        setRow(String(row + 1)); break;
+      case type.ADD_COLUMN:
+        setColumn(String(column + 1)); break; 
+    } 
     setIndex("");
-    Keyboard.dismiss();
     setVisible(false);
   }
 

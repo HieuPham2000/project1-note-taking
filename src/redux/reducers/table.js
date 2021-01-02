@@ -127,27 +127,37 @@ const tableReducer = (state = [], action) => {
       tmp = [];
       len = state.length;
       let index = action.payload.index;
-      if(index <= 0) {
-        index = 1;
-      } else if(index > len) {
-        index = len;
+      if(index < len) {
+        if(index <= 0) {
+          index = 1;
+        } 
+        for(let i = 0; i < len; i++) {
+          /* if(i==action.payload.index) {
+            let numCol = state[i].length;
+            tmp.push(Array(numCol).fill(""));
+          } */
+          tmp.push([...state[i]]);
+        }
+        numCol = state[0].length;
+        tmp.splice(index, 0, Array(numCol).fill(""));
+        // đánh lại giá trị:
+        for(let i = 1; i < len + 1; i++) {
+          tmp[i][0] = i;
+        }
+        tmp[0][0] = "";
+        
+      } else {
+        for(let i = 0; i < len; i++) {
+          tmp.push([...state[i]]);
+        }
+        numCol = state[0].length;
+        tmp.push(Array(numCol).fill(""));
+        
+        for(let i = 1; i < len + 1; i++) {
+          tmp[i][0] = i;
+        }
+        tmp[0][0] = "";
       }
-      for(let i = 0; i < len; i++) {
-        /* if(i==action.payload.index) {
-          let numCol = state[i].length;
-          tmp.push(Array(numCol).fill(""));
-        } */
-        tmp.push([...state[i]]);
-      }
-      numCol = state[0].length;
-      tmp.splice(index, 0, Array(numCol).fill(""));
-      // đánh lại giá trị:
-      for(let i = 1; i < len + 1; i++) {
-        tmp[i][0] = i;
-      }
-      // có vẻ không cần thiết
-      tmp[0][0] = "";
-      //
       return tmp;
 
     case type.ADD_COLUMN:
@@ -155,24 +165,29 @@ const tableReducer = (state = [], action) => {
       len = state.length;
       numCol = state[0].length;
       index = action.payload.index;
-      if(index <= 0) {
-        index = 1;
-      } else if(index > numCol) {
-        index = numCol;
-      }
-      for(let i = 0; i < len; i++) {
-        // insert bằng splice
-        let tmp_row = [...state[i]];
-        tmp_row.splice(action.payload.index, 0, "");
-        tmp.push([...tmp_row]);
+      if(index < numCol) {
+        if(index <= 0) {
+          index = 1;
+        }
+        for(let i = 0; i < len; i++) {
+          // insert bằng splice
+          let tmp_row = [...state[i]];
+          tmp_row.splice(index, 0, "");
+          tmp.push([...tmp_row]);
+        }
+      } else {
+        for(let i = 0; i < len; i++) {
+          // insert bằng splice
+          let tmp_row = [...state[i]];
+          tmp_row.push("");
+          tmp.push([...tmp_row]);
+        }
       }
       // đánh lại giá trị:
       for(let j = 1; j < numCol + 1; j++) {
         tmp[0][j] = j;
       }
-      // có vẻ không cần thiết
       tmp[0][0] = "";
-      //
       return tmp;
 
     default:
