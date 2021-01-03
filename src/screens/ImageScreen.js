@@ -240,8 +240,8 @@ export default function App({navigation, route}) {
   const setCaptionImage = (text, id) => {
     dispatch({type: type.UPDATE_CAPTION, payload: {text: text, name: id}});
   }
-  const deleteImage = (id) => {
-    dispatch({type: type.DELETE_IMAGE, payload: id});
+  const deleteImage = (name) => {
+    dispatch({type: type.DELETE_IMAGE, payload: {id: idNote, name: name}});
   }
   return (
     <View style={{ flex: 1, backgroundColor:COLOR.COLOR_BACKGROUND}}>

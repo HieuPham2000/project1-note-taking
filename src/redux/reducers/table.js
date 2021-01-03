@@ -51,7 +51,8 @@ const tableReducer = (state = [], action) => {
       tmp = [];
       // len khác số row, len = row + 1
       let len = state.length;
-      if(action.payload.index <= len) {
+      //console.log(len);
+      if(action.payload.index < len && action.payload.index >= 1) {
         for(let i = 0; i < len; i++) {
           tmp.push([...state[i]]);
         }
@@ -65,13 +66,14 @@ const tableReducer = (state = [], action) => {
         //
         return tmp;
       }
+      //console.log(state);
       return state;
       
 
     case type.DELETE_DATA_IN_ROW:
       tmp = [];
       len = state.length;
-      if(action.payload.index <= len) {
+      if(action.payload.index < len && action.payload.index >= 1) {
         for(let i = 0; i < len; i++) {
           tmp.push([...state[i]]);
         }
@@ -86,8 +88,8 @@ const tableReducer = (state = [], action) => {
     case type.DELETE_COLUMN:
       tmp = [];
       len = state.length;
-      let numCol = state[0].length;
-      if(action.payload.index <= numCol) {
+      let numCol = state[0].length - 1;
+      if(action.payload.index <= numCol && action.payload.index >= 1) {
         for(let i = 0; i < len; i++) {
           let tmp_row = [...state[i]];
           tmp_row.splice(action.payload.index, 1);
@@ -108,8 +110,8 @@ const tableReducer = (state = [], action) => {
     case type.DELETE_DATA_IN_COLUMN:
       tmp = [];
       len = state.length;
-      numCol = state[0].length;
-      if(action.payload.index <= numCol) {
+      numCol = state[0].length - 1;
+      if(action.payload.index <= numCol && action.payload.index >= 1) {
         for(let i = 0; i < len; i++) {
           let tmp_row = [...state[i]];
           // chú ý vị trí đầu

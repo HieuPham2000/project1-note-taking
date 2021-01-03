@@ -17,12 +17,14 @@ const imageNoteReducer = (state = [], action) => {
     
     case type.DELETE_IMAGE:
       try {
-        app.storage().ref().child(action.payload).delete();
+        if(action.payload.id==-1) {
+          app.storage().ref().child(action.payload.name).delete();
+        }
       } catch (error) {
         console.log(error)
       }
       let newState = [...state]
-      let index = newState.findIndex((i) => i.name == action.payload);
+      let index = newState.findIndex((i) => i.name == action.payload.name);
       newState.splice(index, 1);
       return [...newState];
 

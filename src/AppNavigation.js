@@ -5,7 +5,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import * as COLOR from './theme/color'
-import { HomeScreen, NoteScreen, TodoScreen, SupportScreen, ImageScreen, TableScreen } from './screens'
+import { HomeScreen, NoteScreen, TodoScreen, /* SupportScreen,*/ ImageScreen, TableScreen } from './screens'
 import { FontAwesome } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import {
@@ -226,7 +226,7 @@ function TodoStack() {
   );
 }
 
-function SupportStack() {
+/* function SupportStack() {
   return (
       <Stack.Navigator 
         screenOptions={{
@@ -260,7 +260,7 @@ function SupportStack() {
         />
       </Stack.Navigator>
   );
-}
+} */
 
 const styles = StyleSheet.create({
   button: {

@@ -42,9 +42,15 @@ export default function DialogTable({ TYPE, visible, setVisible, setRow, setColu
     console.log(column); */
     switch (TYPE) {
       case type.DELETE_ROW:
-        setRow(String(row - 1)); break;
+        if(Number(index)>=1 && Number(index)<=row) {
+          setRow(String(row - 1));
+        }
+        break;
       case type.DELETE_COLUMN:
-        setColumn(String(column - 1)); break;
+        if(Number(index)>=1 && Number(index)<=column) {
+          setColumn(String(column - 1));
+        }
+        break;
       case type.ADD_ROW:
         setRow(String(row + 1)); break;
       case type.ADD_COLUMN:
@@ -79,7 +85,7 @@ export default function DialogTable({ TYPE, visible, setVisible, setRow, setColu
       case type.DELETE_COLUMN:
         return "Mời bạn nhập cột cần xóa";
       case type.DELETE_DATA_IN_COLUMN:
-        return "Mời bạn nhập hàng cần xóa dữ liệu";
+        return "Mời bạn nhập cột cần xóa dữ liệu";
       case type.ADD_ROW:
         return "Mời bạn nhập vị trí chèn thêm hàng";
       case type.ADD_COLUMN:
