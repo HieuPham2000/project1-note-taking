@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Modal, TouchableOpacity, Share } from 'react-native';
 import { MaterialIcons, AntDesign, Entypo } from '@expo/vector-icons';
 import { convertDate, convertString } from '../utils/convert';
 import * as COLOR from '../theme/color';
