@@ -100,8 +100,8 @@ export default function App({ navigation, route }) {
   }
 
   const confirm = () => {
-    console.log(tableData);
-    console.log(route.params.tableNote);
+    //console.log(tableData);
+    //console.log(route.params.tableNote);
     if (id === -1) {
       saveTableNote();
       Alert.alert('Thông báo', 'Tạo ghi chú thành công!');
